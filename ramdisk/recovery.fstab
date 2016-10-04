@@ -1,0 +1,12 @@
+#<src>                                                <mnt_point>  <type>  <mnt_flags and options>                     <fs_mgr_flags>
+/dev/block/platform/sprd-sdhci.3/by-name/efs			/efs            ext4		default                   recoveryonly
+/dev/block/platform/sprd-sdhci.0/mmcblk1p1				/sdcard         vfat		default                   recoveryonly
+/dev/block/platform/sprd-sdhci.3/by-name/system   		/system         ext4		default                   recoveryonly
+/dev/block/platform/sprd-sdhci.3/by-name/HIDDEN  		/preload        ext4		default                   recoveryonly
+/dev/block/platform/sprd-sdhci.3/by-name/userdata   	/data           ext4		default                   wait,length=-16384
+/dev/block/platform/sprd-sdhci.3/by-name/CSC			/cache          ext4		default                   recoveryonly
+/dev/block/platform/sprd-sdhci.3/by-name/KERNEL			/boot           emmc		default                   recoveryonly
+/dev/block/platform/sprd-sdhci.3/by-name/RECOVERY		/recovery       emmc		default                   recoveryonly
+/dev/block/platform/sprd-sdhci.3/by-name/MODEM			/modemcp        emmc		default                   recoveryonly
+/dev/block/platform/sprd-sdhci.3/by-name/WDSP		    /modemdsp       emmc		default                   recoveryonly
+
