@@ -2,6 +2,7 @@ import /init.board.rc
 import /init.sc8830.usb.rc
 import /init.sc8830_ss.rc
 
+
 on early-init
     mount debugfs debugfs /sys/kernel/debug
 
@@ -18,49 +19,75 @@ on early-init
 
 on init
     mkdir /productinfo 0771 system system
-    mkdir /mnt/media_rw/extSdCard 0700 media_rw media_rw
-    #mkdir /storage/extSdCard 0700 root root
+    mkdir /mnt/media_rw/sdcard0 0700 media_rw media_rw
+    #mkdir /storage/sdcard0 0700 root root
     mkdir /mnt/shell/emulated 0700 shell shell
     mkdir /storage/emulated 0555 root root
-    # SPRD: move this to board level init @{
+
     #export EXTERNAL_STORAGE /storage/emulated/legacy
     #export SECONDARY_STORAGE /storage/sdcard0
-    # @}
-    # SPRD: for storage manage @{
-    # export LEGACY_STORAGE /storage/emulated/legacy
-    # @}
-    # export EMULATED_STORAGE_SOURCE /mnt/shell/emulated
-    # export EMULATED_STORAGE_TARGET /storage/emulated
+    #export EMULATED_STORAGE_SOURCE /mnt/shell/emulated
+    #export EMULATED_STORAGE_TARGET /storage/emulated
 
     # Support legacy paths
     # move this to board level init @{
     #symlink /storage/emulated/legacy /sdcard
     #symlink /storage/emulated/legacy /mnt/sdcard
     # @}
-    # symlink /mnt/shell/emulated/0 /storage/emulated/legacy
-    # symlink /storage/extSdCard /mnt/extSdCard
-    # symlink /storage/emulated/legacy /storage/sdcard0
-
-# SPRD: add for OTG usb disk @{
-    mkdir /mnt/media_rw/usbdisk 0700 media_rw media_rw
-    mkdir /storage/usbdisk 0000 system system
-    symlink /storage/usbdisk /mnt/usbdisk
-# @}
+    #symlink /mnt/shell/emulated/0 /storage/emulated/legacy
 
 on fs
     ubiattach 0 ubipac
     mount_all /fstab.sc8830
-    mount pstore pstore /sys/fs/pstore
     setprop ro.crypto.fuse_sdcard true
-	symlink /system/res /res
-	symlink /system/bin /bin
-#MULTISIM
-	setprop ro.multisim.simslotcount 2
 
 #Allow others to read fb devices
     chmod 660 /dev/graphics/fb0
     chmod 660 /dev/fb0
 
+#permissions for debug
+    chown system system /sys/power/restart_cpc
+    chmod 0220 /sys/power/restart_cpc
+
+#permissions for cpufreq
+    chown system system /sys/power/cpufreq_min_limit
+    chown system system /sys/power/cpufreq_max_limit
+    chown system system /sys/power/cpufreq_table
+    chmod 0664 /sys/power/cpufreq_min_limit
+    chmod 0664 /sys/power/cpufreq_max_limit
+    chmod 0664 /sys/power/cpufreq_table
+
+#permissions for ddr
+    chown system system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/polling_interval
+    chown system system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/min_freq
+    chown system system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/max_freq
+    chown system system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/governor
+    chown system system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/cur_freq
+    chown system system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/available_frequencies
+    chmod 664 /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/min_freq
+    chmod 664 /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/max_freq
+    chmod 664 /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/available_frequencies
+
+# permissions for sensors (accelerometer)
+    chown system system /sys/class/input/input0/enable
+    chown system system /sys/class/input/input0/delay
+    chown system system /sys/class/input/input0/poll_delay
+    chmod 0660 /sys/class/input/input0/enable
+    chmod 0660 /sys/class/input/input0/delay
+    chmod 0660 /sys/class/input/input0/poll_delay
+
+    chown system system /sys/class/input/input1/enable
+    chown system system /sys/class/input/input1/delay
+    chown system system /sys/class/input/input1/poll_delay
+    chmod 0660 /sys/class/input/input1/enable
+    chmod 0660 /sys/class/input/input1/delay
+    chmod 0660 /sys/class/input/input1/poll_delay
+
+# permissions for TSP
+    chown system system /sys/class/sec/tsp/cmd
+
+    chmod 0664 /sys/class/sec/tsp/cmd
+    
 on post-fs
     chown system system /productinfo
     chmod 0771 /productinfo
@@ -68,30 +95,12 @@ on post-fs
     insmod /system/lib/modules/trout_fm.ko
 
 on post-fs-data
-	# give system access to wpa_supplicant.conf for backup and restore	
-    
-    mkdir /efs/imei 0775 radio system
-    mkdir /data/misc/wifi 0775 wifi system
-    mkdir /data/misc/wifi/sockets 0770 wifi wifi
-    mkdir /data/misc/dhcp 0775 dhcp dhcp
-    mkdir /system/etc/wifi 0775 wifi wifi
-    mkdir /data/corefile 0660 system system
-	mkdir /data/misc/wifi/mac 0775 radio system
-	chmod 0660 /data/misc/wifi/wpa_supplicant.conf
-    chown system system /data/misc/wifi/mac/.mac.info
-    chmod 0664 /data/misc/wifi/mac/.mac.info
-    chown system system /efs/imei/.nvmac.info
-    chmod 0664 /efs/imei/.nvmac.info
+    #copy /system/etc/bluetooth/bt_stack.conf /data/misc/bluedroid/bt_stack.conf
+    #chown bluetooth bluetooth /data/misc/bluedroid/bt_stack.conf
+    #chmod 0640 /data/misc/bluedroid/bt_stack.conf
 
-	# for WIFI TRP/TIS
-	write /data/.psm.info 1
-	chown system root /data/.psm.info
-	chmod 0660 /data/.psm.info
-	setprop vold.post_fs_data_done 1
-
-    copy /system/etc/bluetooth/bt_stack.conf /data/misc/bluedroid/bt_stack.conf
-    chown bluetooth bluetooth /data/misc/bluedroid/bt_stack.conf
-    chmod 0640 /data/misc/bluedroid/bt_stack.conf
+    # Set indication (checked by vold) that we have finished this action
+    setprop vold.post_fs_data_done 1
 
 on early-boot
     # set RLIMIT_MEMLOCK to 64MB
@@ -140,8 +149,12 @@ on early-boot
     chown system root /proc/cpwcn/dsp
 
 on boot
+    chown system system /sys/module/mali/parameters/gpu_cur_freq
+    chown system system /sys/module/mali/parameters/gpufreq_max_limit
+    chown system system /sys/module/mali/parameters/gpufreq_min_limit
+    chown system system /sys/module/mali/parameters/gpufreq_table
     chown system system /sys/class/backlight/sprd_backlight/brightness
-	chown system root /sys/class/camera/rear/rear_flash
+
     chown system system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/ondemand/set_enable
     chown system system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/ondemand/set_upthreshold
     chown system system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/ondemand/set_downdifferential
@@ -151,36 +164,53 @@ on boot
     chmod 0660 /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
     chmod 0660 /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/ondemand/set_freq
 
-# mDNIe
-    chown system system /sys/class/mdnie/mdnie/tuning
-    chmod 0664 /sys/class/mdnie/mdnie/tuning
-    chown system media_rw /sys/class/mdnie/mdnie/scenario
-    chmod 0664 /sys/class/mdnie/mdnie/scenario
-    chown system media_rw /sys/class/mdnie/mdnie/outdoor
-    chmod 0664 /sys/class/mdnie/mdnie/outdoor
-    chown system system /sys/class/mdnie/mdnie/negative
-    chmod 0664 /sys/class/mdnie/mdnie/negative
-    chmod 0660 /sys/class/phy/phy_dev/phy_feq
-    chown system system /sys/class/phy/phy_dev/phy_feq
+    chown system system /sys/class/graphics/fb0/dynamic_pclk
+    chown system system /sys/class/graphics/fb0/dynamic_fps
+    chown system system /sys/class/graphics/fb0/dynamic_mipi_clk
 
-on charger
-    class_start core
+# <Sensors>
+# Accelerometer_sensor
+    chown system radio /dev/accelerometer
+    chown system radio /sys/class/sensors/accelerometer_sensor
+    chown system radio /sys/class/sensors/accelerometer_sensor/raw_data
+    chown system radio /sys/class/sensors/accelerometer_sensor/calibration
+    chown system radio /sys/class/sensors/accelerometer_sensor/accel_cal_open 
+    chown system radio /sys/class/sensors/accelerometer_sensor/reactive_alert
+    chown system radio /sys/class/sensors/accelerometer_sensor/vendor
+    chown system radio /sys/class/sensors/accelerometer_sensor/name
 
-on alarm
-    class_start core
-    start media
-    exec /system/bin/poweroff_alarm
+
+    chmod 777 radio /dev/accelerometer
+    chmod 777 radio /sys/class/sensors/accelerometer_sensor
+    chmod 777 radio /sys/class/sensors/accelerometer_sensor/raw_data
+    chmod 777 radio /sys/class/sensors/accelerometer_sensor/calibration
+    chmod 777 radio /sys/class/sensors/accelerometer_sensor/accel_cal_open
+    chmod 777 radio /sys/class/sensors/accelerometer_sensor/reactive_alert
+    chmod 777 radio /sys/class/sensors/accelerometer_sensor/vendor
+    chmod 777 radio /sys/class/sensors/accelerometer_sensor/name
+
+#audio pin mux
+    chmod 0666 /proc/pin_switch/iis0_sys_sel/cp0_iis0
+    chmod 0666 /proc/pin_switch/iis0_sys_sel/cp1_iis0
+    chmod 0666 /proc/pin_switch/iis0_sys_sel/cp2_iis0
+    chmod 0666 /proc/pin_switch/iis0_sys_sel/ap_iis0
+    chmod 0666 /proc/pin_switch/bt_iis_sys_sel/cp0_iis0
+    chmod 0666 /proc/pin_switch/bt_iis_sys_sel/cp1_iis0
+    chmod 0666 /proc/pin_switch/bt_iis_sys_sel/cp2_iis0
+    chmod 0666 /proc/pin_switch/bt_iis_sys_sel/ap_iis0
+
+# on charger
+#    class_start core
 
 #on property:ro.debuggable=1
-#   write /sys/kernel/debug/fatal_dump/enable 1
-#   mkdir /data/corefile
-#   chmod 777 /data/corefile
-#   chmod 777 /sys/kernel/debug/sc2713-regulator/vddarm/voltage
-#   chmod 777 /sys/kernel/debug/sc2713-regulator/vddcore/voltage
-#   chmod 777 /sys/kernel/debug
-#   write /proc/sys/kernel/core_pattern /data/corefile/core-%e-%p
-#   write /proc/sys/fs/suid_dumpable 1
-#   write /sys/module/smsg/parameters/debug_enable 1
+#    write /sys/kernel/debug/fatal_dump/enable 1
+#    mkdir /data/corefile
+#    chmod 777 /data/corefile
+#    chmod 777 /sys/kernel/debug/sc2711-regulator/vddarm/voltage
+#    chmod 777 /sys/kernel/debug/sc2711-regulator/vddcore/voltage
+#    chmod 777 /sys/kernel/debug
+#    write /proc/sys/kernel/core_pattern /data/corefile/core-%e-%p
+#    write /proc/sys/fs/suid_dumpable 1
 
 on property:ro.modem.t.count=1
     write /proc/sim/0 t
@@ -206,53 +236,40 @@ on property:ro.modem.w.count=3
     write /proc/sim/1 w
     write /proc/sim/2 w
 
+
 on property:ro.config.ksm.support=true
     write /sys/kernel/mm/ksm/pages_to_scan 100
     write /sys/kernel/mm/ksm/sleep_millisecs 500
     write /sys/kernel/mm/ksm/run   1
 
 
-# SPRD: add for theme setting @{
-on property:universe_ui_support=true
-    start theme_init
-
-service theme_init /system/bin/theme_init.sh
-    disabled
-    oneshot
-# @}
-
 # add for storage manage @{
-# on property:persist.storage.type=1
-# start legacy_tempsd
+#on property:persist.storage.type=1
+#    start legacy_tempsd
 
 #on property:sys.tempsd.enable=1
-#   start fuse_tempsd
+#    start fuse_tempsd
 
 #on property:sys.tempsd.enable=0
-#   stop fuse_tempsd
+#    stop fuse_tempsd
 
-# service legacy_tempsd /system/bin/sdcard -u 1023 -g 1023  -l /data/media/temp_sd /storage/temp_sd
+#service legacy_tempsd /system/bin/sdcard -u 1023 -g 1023 -w 1051 -l /data/media/temp_sd /storage/temp_sd
 #    disabled
 
-# service fuse_tempsd /system/bin/sdcard -u 1023 -g 1023  -l /data/media/temp_sd /storage/extSdCard
-#   class late_start
+#service fuse_tempsd /system/bin/sdcard -u 1023 -g 1023 -w 1051 -l /data/media/temp_sd /storage/sdcard0
+#    class late_start
 #    disabled
-
-service fuse_usbdisk /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/usbdisk /storage/usbdisk
-    class late_start
-    disabled
 # @}
 
 # modify for physical external storage could be writable
-#service fuse_extSdCard /system/bin/sdcard -u 1023 -g 1023 -w 1023 -d -f /mnt/media_rw/extSdCard /storage/extSdCard
-#   class late_start
-#   disabled
-#	oneshot
+#service fuse_sdcard0 /system/bin/sdcard -u 1023 -g 1023 -w 1052 -d /mnt/media_rw/sdcard0 /storage/sdcard0
+#    class late_start
+#    disabled
 
 # virtual sdcard daemon running as media_rw (1023)
-#service sdcard /system/bin/sdcard -u 1023 -g 1023 -l -r /data/media /mnt/shell/emulated
+#service sdcard /system/bin/sdcard -u 1023 -g 1023 -w 1051 -l /data/media /mnt/shell/emulated
 #   class late_start
-#	oneshot
+
 
 service modemd /system/bin/modemd
     class core
@@ -267,11 +284,6 @@ service phoneserver_t /system/bin/phoneserver -m t
     disabled
     oneshot
 
-service at_distributor /system/bin/at_distributor
-    class main
-    user root
-    group radio misc log
-
 service phoneserver_w /system/bin/phoneserver -m w
     class core
     user root
@@ -280,58 +292,19 @@ service phoneserver_w /system/bin/phoneserver -m w
     oneshot
 
 #service batterysrv /bin/batterysrv
- #   class core
- #   user system
- #   oneshot
-
-service charge /bin/charge
-    class charger
-    user root
-    oneshot
-
-#td rild service
-service tril-daemon /system/bin/rild_sp -l /system/lib/libreference-ril_sp.so -m t -n 0
-    class core
-    socket rild stream 660 root radio
-    socket rild-debug stream 660 radio system
-    disabled
-    user root
-    group radio cache inet misc audio sdcard_rw log
-
-service tril-daemon1 /system/bin/rild_sp -l /system/lib/libreference-ril_sp.so -m t -n 1
-    class core
-    socket rild1 stream 660 root radio
-    socket rild-debug1 stream 660 radio system
-    disabled
-    user root
-    group radio cache inet misc audio sdcard_rw log
-
-#wcdma rild service
-service wril-daemon /system/bin/rild -l /system/lib/libreference-ril_sp.so -m w -n 0
-    class core
-    socket rild stream 660 root radio
-    socket rild-debug stream 660 radio system
-    disabled
-    user root
-    group radio cache inet misc audio sdcard_rw log shell
-
-service wril-daemon1 /system/bin/rild -l /system/lib/libreference-ril_sp.so -m w -n 1
-    class core
-    socket rild1 stream 660 root radio
-    socket rild-debug1 stream 660 radio system
-    disabled
-    user root
-    group radio cache inet misc audio sdcard_rw log shell
+#    class core
+#    user root
+#    oneshot
 
 #nvitemd
-service nvitemd_td /system/bin/nvitemd t 0
+service nvitemd_td /system/bin/nvitemd /dev/spipe_td1 /system/etc/nvitem_td.cfg FALSE
     class core
     user system
-    disabled
     group system radio shell
+    disabled
     oneshot
 
-service nvitemd_w /system/bin/nvitemd w 0
+service nvitemd_w /system/bin/nvitemd /dev/spipe_w1 /system/etc/nvitem_w.cfg        FALSE
     class core
     user system
     group system radio shell
@@ -341,35 +314,36 @@ service nvitemd_w /system/bin/nvitemd w 0
 service slog /system/bin/slog -t
     class main
     user system
-	group system shell radio log sdcard_r sdcard_rw
+    group system shell radio log sdcard_r sdcard_rw
 
 service refnotify /system/bin/refnotify -t 0
     class main
     user system
-    group system radio shell
+	group system radio shell
     disabled
-
 
 service refnotify_w /system/bin/refnotify -t 1
     class main
     user system
-    group system radio shell
+	group system radio shell
+    disabled
+
 
 on property:persist.modem.w.enable=1
     symlink /dev/spipe_w1 /dev/vbpipe1
     symlink /dev/spipe_w2 /dev/vbpipe2
     symlink /dev/spipe_w3 /dev/vbpipe3
     symlink /dev/spipe_w6 /dev/vbpipe6
-     symlink /dev/block/platform/sprd-sdhci.3/by-name/FIXNV1 /dev/block/platform/sprd-sdhci.3/by-name/fixnv2
-    symlink /dev/block/platform/sprd-sdhci.3/by-name/FIXNV2 /dev/block/platform/sprd-sdhci.3/by-name/fixnv1
-    symlink /dev/block/platform/sprd-sdhci.3/by-name/RUNTIMENV1 /dev/block/platform/sprd-sdhci.3/by-name/runtimenv1 
-    symlink /dev/block/platform/sprd-sdhci.3/by-name/RUNTIMENV2 /dev/block/platform/sprd-sdhci.3/by-name/runtimenv2 
-    
-	start nvitemd_w
+    start nvitemd_w
+    start refnotify_w
 
 on property:persist.modem.t.enable=1
+	symlink /dev/spipe_td1 /dev/vbpipe1
+    symlink /dev/spipe_td2 /dev/vbpipe2
+    symlink /dev/spipe_td3 /dev/vbpipe3
+    symlink /dev/spipe_td6 /dev/vbpipe6
     start nvitemd_td
-	start refnotify
+    start refnotify
 
 #create symlink
 service smd_symlink /system/bin/ext_symlink.sh -u
@@ -430,17 +404,3 @@ service srtd /system/xbin/srtd
     user root
     group root
     oneshot
-# LPM
-on property:ro.bootmode=charger
-	mount ext4 /dev/block/platform/sprd-sdhci.3/by-name/system /system  wait ro
-on property:ro.bootmode=charger
-    class_start sec-charger
-
-service playlpm /system/bin/lpm
-    class sec-charger
-    critical
-
-service smd_symlink /system/bin/ext_symlink.sh -u
-    user root
-    disabled
-    oneshut

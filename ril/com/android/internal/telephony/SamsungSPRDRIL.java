@@ -102,16 +102,54 @@ public class SamsungSPRDRIL extends RIL implements CommandsInterface {
     }
 
     @Override
-    public void setDataSubscription(Message result) {
+    public void setDataAllowed(boolean allowed, Message result) {
         int simId = mInstanceId == null ? 0 : mInstanceId;
-        if (RILJ_LOGD) riljLog("Setting data subscription to " + simId);
-        invokeOemRilRequestRaw(new byte[] {(byte) 9, (byte) 4}, result);
+        if (allowed) {
+            riljLog("Setting data subscription to sim [" + simId + "]");
+            invokeOemRilRequestRaw(new byte[] {0x9, 0x4}, result);
+        } else {
+            riljLog("Do nothing when turn-off data on sim [" + simId + "]");
+            if (result != null) {
+                AsyncResult.forMessage(result, 0, null);
+                result.sendToTarget();
+            }
+        }
     }
 
-    public void setDefaultVoiceSub(int subIndex, Message response) {
-        // Fake the message
-        AsyncResult.forMessage(response, 0, null);
-        response.sendToTarget();
+    @Override
+    public void getHardwareConfig (Message result) {
+        riljLog("Ignoring call to 'getHardwareConfig'");
+        if (result != null) {
+            AsyncResult.forMessage(result, null, new CommandException(
+                    CommandException.Error.REQUEST_NOT_SUPPORTED));
+            result.sendToTarget();
+        }
+    }
+
+    @Override
+    protected RadioState getRadioStateFromInt(int stateInt) {
+        RadioState state;
+
+        /* RIL_RadioState ril.h */
+        switch(stateInt) {
+            case 0: state = RadioState.RADIO_OFF; break;
+            case 1: state = RadioState.RADIO_UNAVAILABLE; break;
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+            case 10:
+            case 13: state = RadioState.RADIO_ON; break;
+
+            default:
+                throw new RuntimeException(
+                            "Unrecognized RIL_RadioState: " + stateInt);
+        }
+        return state;
     }
 
     @Override
@@ -123,7 +161,7 @@ public class SamsungSPRDRIL extends RIL implements CommandsInterface {
                 invokeOemRilRequestSprd((byte) 3, (byte) 1, null);
             } else {
                 riljLog("Set data subscription to allow data in either SIM slot when using single SIM mode");
-                setDataSubscription(null);
+                setDataAllowed(true, null);
             }
         }
     }

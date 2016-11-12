@@ -1,41 +1,73 @@
-USE_CAMERA_STUB := true
+# Copyright (C) 2014 The CyanogenMod Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-# inherit from the proprietary version
+# Inherit from the proprietary version
 -include vendor/samsung/kanas/BoardConfigVendor.mk
 
+# Platform
 TARGET_ARCH := arm
-TARGET_NO_BOOTLOADER := true
 TARGET_BOARD_PLATFORM := sc8830
-TARGET_ARCH_VARIANT := armv7-a-neon
-TARGET_CPU_VARIANT := cortex-a7
+TARGET_BOARD_PLATFORM_GPU := mali-400 MP
 TARGET_CPU_ABI := armeabi-v7a
 TARGET_CPU_ABI2 := armeabi
-BOARD_VENDOR := samsung
+TARGET_ARCH_VARIANT := armv7-a-neon
+TARGET_CPU_VARIANT := cortex-a7
+TARGET_CPU_SMP := false
 ARCH_ARM_HAVE_TLS_REGISTER := true
 TARGET_BOOTLOADER_BOARD_NAME := SC7735S
-VSYNC_EVENT_PHASE_OFFSET_NS := 0
+BOARD_VENDOR := samsung
 
-# Audio
-BOARD_USES_TINYALSA_AUDIO := true
-BOARD_USES_SS_VOIP := true
-BOARD_USE_LIBATCHANNEL_WRAPPER := true
+# Config u-boot
+TARGET_NO_BOOTLOADER := true
 
-# something
-BOARD_USE_SAMSUNG_COLORFORMAT := true
-BOARD_NEEDS_MEMORYHEAPION_SPRD := true
-COMMON_GLOBAL_CFLAGS += -DSPRD_HARDWARE
-
+BOARD_BOOTIMAGE_PARTITION_SIZE := 8388608
+BOARD_RECOVERYIMAGE_PARTITION_SIZE := 8388608
+BOARD_SYSTEMIMAGE_PARTITION_SIZE := 1111490560
+BOARD_USERDATAIMAGE_PARTITION_SIZE := 2457862144
+BOARD_CACHEIMAGE_PARTITION_SIZE := 209715200
+BOARD_FLASH_BLOCK_SIZE := 131072
 TARGET_USERIMAGES_USE_EXT4 := true
-BOARD_SYSTEMIMAGE_PARTITION_SIZE := 576716800
-BOARD_USERDATAIMAGE_PARTITION_SIZE := 209715200
-BOARD_CACHEIMAGE_PARTITION_SIZE := 69206016
-BOARD_CACHEIMAGE_FILE_SYSTEM_TYPE := ext4
-BOARD_FLASH_BLOCK_SIZE := 512
-TARGET_USERIMAGES_SPARSE_EXT_DISABLED := true
+BOARD_HAS_LARGE_FILESYSTEM := true
 
+# RIL
+BOARD_RIL_CLASS := ../../../device/samsung/kanas/ril
+COMMON_GLOBAL_CFLAGS += -DSEC_PRODUCT_FEATURE_RIL_CALL_DUALMODE_CDMAGSM
+
+# Bluetooth
+BOARD_HAVE_BLUETOOTH := true
+BOARD_HAVE_BLUETOOTH_BCM := true
+BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/kanas/bluetooth
+BOARD_BLUEDROID_VENDOR_CONF := device/samsung/kanas/bluetooth/libbt_vndcfg.txt
+#USE_BLUETOOTH_BCM4343 := true
+
+# Wifi
+BOARD_WLAN_DEVICE := bcmdhd
+BOARD_WLAN_DEVICE_REV := bcm4330
+WPA_SUPPLICANT_VERSION := VER_0_8_X
+BOARD_WPA_SUPPLICANT_DRIVER := NL80211
+BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_bcmdhd
+BOARD_HOSTAPD_DRIVER := NL80211
+BOARD_HOSTAPD_PRIVATE_LIB := lib_driver_cmd_bcmdhd
+WIFI_DRIVER_FW_PATH_PARAM := "/sys/module/dhd/parameters/firmware_path"
+WIFI_DRIVER_FW_PATH_STA := "/system/etc/wifi/bcmdhd_sta.bin"
+WIFI_DRIVER_FW_PATH_AP := "/system/etc/wifi/bcmdhd_apsta.bin"
+WIFI_DRIVER_NVRAM_PATH_PARAM := "/sys/module/dhd/parameters/nvram_path"
+WIFI_DRIVER_NVRAM_PATH := "/system/etc/wifi/nvram_net.txt"
+WIFI_BAND := 802_11_ABG
+BOARD_HAVE_SAMSUNG_WIFI := true
 
 # Hardware rendering
-TARGET_BOARD_PLATFORM_GPU := ARM Mali-400
 BOARD_EGL_CFG := device/samsung/kanas/configs/egl.cfg
 BOARD_USE_MHEAP_SCREENSHOT := true
 BOARD_EGL_WORKAROUND_BUG_10194508 := true
@@ -47,48 +79,29 @@ USE_OVERLAY_COMPOSER_GPU := true
 DEVICE_FORCE_VIDEO_GO_OVERLAYCOMPOSER := true
 COMMON_GLOBAL_CFLAGS += -DSC8830_HWC
 
+# Resolution
+TARGET_SCREEN_HEIGHT := 800
+TARGET_SCREEN_WIDTH := 480
 
-# Kernel
-BOARD_KERNEL_BASE := 0x00000000
-BOARD_KERNEL_CMDLINE := console=ttyS1,115200n8 androidboot.selinux=permissive
-BOARD_KERNEL_PAGESIZE := 2048
-TARGET_KERNEL_CONFIG := cyanogen_sa_defconfig
-TARGET_KERNEL_SOURCE := kernel/samsung/kanas
+# Audio
+BOARD_USES_TINYALSA_AUDIO := true
+BOARD_USES_SS_VOIP := true
+BOARD_USE_LIBATCHANNEL_WRAPPER := true
 
-# RIL
-BOARD_RIL_CLASS := ../../../device/samsung/kanas/ril
-COMMON_GLOBAL_CFLAGS += -DSEC_PRODUCT_FEATURE_RIL_CALL_DUALMODE_CDMAGSM
+# Media
+COMMON_GLOBAL_CFLAGS += -DADD_LEGACY_ACQUIRE_BUFFER_SYMBOL
+COMMON_GLOBAL_CFLAGS += -DBOARD_CANT_REALLOCATE_OMX_BUFFERS
 
-DEVICE_RESOLUTION := 480x800
+# Board specific features
+#BOARD_USE_VETH := true
+#BOARD_SPRD_RIL := true
+#BOARD_SAMSUNG_RIL := true
+BOARD_USE_SAMSUNG_COLORFORMAT := true
+BOARD_NEEDS_MEMORYHEAPION_SPRD := true
+COMMON_GLOBAL_CFLAGS += -DSPRD_HARDWARE
 
-# Use prebuilt webviewchromium to cut down build time
-PRODUCT_PREBUILT_WEBVIEWCHROMIUM := yes
-
-# Bluetooth
-BOARD_HAVE_BLUETOOTH := true
-BOARD_HAVE_BLUETOOTH_BCM := true
-BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/kanas/bluetooth
-BOARD_BLUEDROID_VENDOR_CONF := device/samsung/kanas/bluetooth/libbt_vndcfg.txt
-
-# Wifi
-BOARD_HAVE_SAMSUNG_WIFI     := true
-WPA_BUILD_SUPPLICANT 		:= true
-BOARD_WPA_SUPPLICANT_DRIVER := NL80211
-WPA_SUPPLICANT_VERSION      := VER_0_8_X
-BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_bcmdhd
-BOARD_HOSTAPD_DRIVER        := NL80211
-BOARD_HOSTAPD_PRIVATE_LIB   := lib_driver_cmd_bcmdhd
-BOARD_WLAN_DEVICE           := bcmdhd
-BOARD_WLAN_DEVICE_REV       := BCM4330B1_002.001.003.1025.1303
-WIFI_DRIVER_FW_PATH_PARAM   := "/sys/module/dhd/parameters/firmware_path"
-WIFI_DRIVER_FW_PATH_STA     := "/system/etc/wifi/bcmdhd_sta.bin"
-WIFI_DRIVER_FW_PATH_AP      := "/system/etc/wifi/bcmdhd_apsta.bin"
-WIFI_DRIVER_MODULE_PATH     := "/system/lib/modules/dhd.ko"
-WIFI_DRIVER_MODULE_NAME     := "dhd"
-WIFI_DRIVER_MODULE_ARG      := "firmware_path=/system/etc/wifi/bcmdhd_sta.bin nvram_path=/system/etc/wifi/nvram_net.txt"
-WIFI_DRIVER_MODULE_AP_ARG   := "firmware_path=/system/etc/wifi/bcmdhd_apsta.bin nvram_path=/system/etc/wifi/nvram_net.txt"
-WIFI_BAND                   := 802_11_ABG
-
+# healthd
+BOARD_HAL_STATIC_LIBRARIES := libhealthd-kanas.sc8830
 
 # Camera
 TARGET_BOARD_CAMERA_HAL_VERSION := HAL1.0
@@ -122,18 +135,73 @@ TARGET_BOARD_CAMERA_CAF := true
 CONFIG_CAMERA_ISP := true
 COMMON_GLOBAL_CFLAGS += -DCONFIG_CAMERA_ISP
 
+# Kernel
+BOARD_KERNEL_BASE := 0x00000000
+BOARD_KERNEL_CMDLINE := console=ttyS1,115200n8 androidboot.selinux=permissive
+BOARD_KERNEL_PAGESIZE := 2048
+TARGET_KERNEL_CONFIG := sandroid_kanas_defconfig
+TARGET_KERNEL_SOURCE := kernel/samsung/kanas
+
+# Init
+TARGET_NR_SVC_SUPP_GIDS := 24
+TARGET_PROVIDES_INIT_RC := true
 
 # Recovery
-TARGET_RECOVERY_INITRC := device/samsung/kanas/ramdisk/init.recovery.rc
-TARGET_RECOVERY_FSTAB := device/samsung/kanas/ramdisk/fstab.kanas3gxx
-TARGET_USE_CUSTOM_LUN_FILE_PATH := "/sys/class/android_usb/android0/f_mass_storage/lun%d/file"
-BOARD_HAS_LARGE_FILESYSTEM := true
-BOARD_HAS_NO_MISC_PARTITION := true
+BOARD_HAS_NO_REAL_SDCARD := true
 BOARD_HAS_NO_SELECT_BUTTON := true
-BOARD_RECOVERY_ALWAYS_WIPES := false
-BOARD_RECOVERY_HANDLES_MOUNT := true
-BOARD_SUPPRESS_EMMC_WIPE := true
-BOARD_USES_MMCUTILS := false
-TARGET_USERIMAGES_USE_EXT4 := true
-TARGET_RECOVERY_PIXEL_FORMAT := BGRA_8888
+TARGET_RECOVERY_PIXEL_FORMAT := "RGBX_8888"
 
+# Assert
+TARGET_OTA_ASSERT_DEVICE := kanas,kanas3g,kanas3gxx,kanas3gub,kanas3gubxx,kanas3gnfcxx,kanas3gnfc,SM-G355H,SM-G355HN,SM-G355M
+
+# SELinux
+#BOARD_SEPOLICY_DIRS += device/samsung/kanas/sepolicy
+#BOARD_SEPOLICY_UNION :=	\
+#	file.te	\
+#	file_contexts \
+#	seapp_contexts \
+#	theme.te \
+#	healthd.te \
+#	init.te \
+#	init_shell.te \
+#	installd.te \
+#	netd.te \
+#	shell.te \
+#	system.te \
+#	untrusted_app.te \
+#	vold.te	\
+#	zygote.te
+
+# Use dmalloc() for such low memory devices like us
+MALLOC_IMPL := dlmalloc
+
+# Use prebuilt webviewchromium to cut down build time
+PRODUCT_PREBUILT_WEBVIEWCHROMIUM := yes
+
+# Enable dex-preoptimization to speed up the first boot sequence
+WITH_DEXPREOPT := true
+WITH_DEXPREOPT_PIC := true
+WITH_DEXPREOPT_COMP := false
+
+# CMHW
+BOARD_HARDWARE_CLASS := device/samsung/kanas/cmhw/
+
+# TWRP
+RECOVERY_GRAPHICS_USE_LINELENGTH := true
+SP1_NAME := "internal_sd"
+SP1_BACKUP_METHOD := files
+SP1_MOUNTABLE := 1
+TW_INTERNAL_STORAGE_PATH := "/data/media/0"
+TW_INTERNAL_STORAGE_MOUNT_POINT := "data"
+TW_EXTERNAL_STORAGE_PATH := "/external_sd"
+TW_EXTERNAL_STORAGE_MOUNT_POINT := "external_sd"
+TW_DEFAULT_EXTERNAL_STORAGE := true
+TW_FLASH_FROM_STORAGE := true
+TW_NO_REBOOT_BOOTLOADER := true
+TW_CUSTOM_CPU_TEMP_PATH := "/sys/devices/platform/sec-thermistor/temperature"
+TWHAVE_SELINUX := true
+TARGET_RECOVERY_INITRC := device/samsung/kanas/etc/init.rc
+TARGET_RECOVERY_FSTAB := device/samsung/kanas/ramdisk/recovery.fstab
+TW_HAS_DOWNLOAD_MODE := true
+DEVICE_RESOLUTION := 480x800
+BOARD_USE_CUSTOM_RECOVERY_FONT := \"roboto_10x18.h\"

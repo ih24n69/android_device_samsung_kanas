@@ -6,6 +6,10 @@ on early-init
     mount debugfs /sys/kernel/debug /sys/kernel/debug
 
 on init
+    #thermistor
+    chown radio system /sys/devices/platform/sec-thermistor/temp_adc
+    chown radio system /sys/devices/platform/sec-thermistor/temperature
+
     mkdir /cache 0000 system system
     mkdir /efs 0774 radio system
 
@@ -34,6 +38,9 @@ on init
 
     mkdir /storage/extSdCard 0700 root root
 
+# SecEDS
+    setprop ro.SecEDS.enable false
+
 on boot
     chown shell shell /sys/devices/platform/bcm_hsotgctrl_phy_mdio/USB_MDIO0
     chown shell shell /sys/devices/platform/bcm_hsotgctrl_phy_mdio/USB_MDIO1
@@ -43,75 +50,55 @@ on boot
     chown shell shell /sys/devices/platform/bcm_hsotgctrl_phy_mdio/USB_MDIO5
     chown shell shell /sys/devices/platform/bcm_hsotgctrl_phy_mdio/TxCurrent
     chown shell shell /sys/devices/platform/bcm_hsotgctrl_phy_mdio/Squelch
-    write /sys/devices/system/cpu/cpufreq/sprdemand/cpu_hotplug_disable 1
 
 # <Sensors>
 # Accelerometer_sensor
-    chown system radio /dev/accelerometer
-    chown system radio /sys/class/sensors/accelerometer_sensor
-    chown system radio /sys/class/sensors/accelerometer_sensor/raw_data
-    chown system radio /sys/class/sensors/accelerometer_sensor/calibration
-    chown system radio /sys/class/sensors/accelerometer_sensor/accel_cal_open 
-    chown system radio /sys/class/sensors/accelerometer_sensor/reactive_alert
-    chown system radio /sys/class/sensors/accelerometer_sensor/vendor
-    chown system radio /sys/class/sensors/accelerometer_sensor/name
+# permissions for sensors (accelerometer)
+    chown system system /sys/class/input/input0/enable
+    chown system system /sys/class/input/input0/delay
+    chown system system /sys/class/input/input0/poll_delay
+    chmod 0664 /sys/class/input/input0/enable
+    chmod 0664 /sys/class/input/input0/delay
+    chmod 0664 /sys/class/input/input0/poll_delay
 
-    chmod 777 radio /dev/accelerometer
-    chmod 777 radio /sys/class/sensors/accelerometer_sensor
-    chmod 777 radio /sys/class/sensors/accelerometer_sensor/raw_data
-    chmod 777 radio /sys/class/sensors/accelerometer_sensor/calibration
-    chmod 777 radio /sys/class/sensors/accelerometer_sensor/accel_cal_open
-    chmod 777 radio /sys/class/sensors/accelerometer_sensor/reactive_alert
-    chmod 777 radio /sys/class/sensors/accelerometer_sensor/vendor
-    chmod 777 radio /sys/class/sensors/accelerometer_sensor/name
+    chown system system /sys/class/input/input1/enable
+    chown system system /sys/class/input/input1/delay
+    chown system system /sys/class/input/input1/poll_delay
+    chmod 0664 /sys/class/input/input1/enable
+    chmod 0664 /sys/class/input/input1/delay
+    chmod 0664 /sys/class/input/input1/poll_delay
+
+    chown system system /sys/class/input/input3/enable
+    chown system system /sys/class/input/input3/delay
+    chown system system /sys/class/input/input3/poll_delay
+    chmod 0664 /sys/class/input/input3/enable
+    chmod 0664 /sys/class/input/input3/delay
+    chmod 0664 /sys/class/input/input3/poll_delay
+
+    chown system system /dev/accelerometer
+    chown system system /sys/class/sensors/accelerometer_sensor
+    chown system system /sys/class/sensors/accelerometer_sensor/raw_data
+    chown system system /sys/class/sensors/accelerometer_sensor/calibration
+    chown system system /sys/class/sensors/accelerometer_sensor/accel_cal_open
+    chown system system /sys/class/sensors/accelerometer_sensor/reactive_alert
+    chown system system /sys/class/sensors/accelerometer_sensor/vendor
+    chown system system /sys/class/sensors/accelerometer_sensor/name
+
+    chmod 0664 /dev/accelerometer
+    chmod 0664 /sys/class/sensors/accelerometer_sensor
+    chmod 0664 /sys/class/sensors/accelerometer_sensor/raw_data
+    chmod 0664 /sys/class/sensors/accelerometer_sensor/calibration
+    chmod 0664 /sys/class/sensors/accelerometer_sensor/accel_cal_open
+    chmod 0664 /sys/class/sensors/accelerometer_sensor/reactive_alert
+    chmod 0664 /sys/class/sensors/accelerometer_sensor/vendor
+    chmod 0664 /sys/class/sensors/accelerometer_sensor/name
+
+    chown system system /efs/accel_calibration_data
+    chmod 0666 /efs/accel_calibration_data
+#flash    
+    chown system radio /sys/class/camera/rear/rear_flash
+    chmod 0660 /sys/class/camera/rear/rear_flash
 #audio pin mux
-	
-	 chown system system proc/pin_switch/vbc_adc_iisdi_pin_in_sel
-  chown system system proc/pin_switch/vbc_adc_iislrck_pin_in_sel
-  chown system system proc/pin_switch/vbc_adc_iisclk_pin_in_sel
-  chown system system proc/pin_switch/iis2_sys_sel/cp2_iis2
- chown system system proc/pin_switch/iis3_sys_sel/cp1_iis3
- chown system system proc/pin_switch/iis3di_pin_in_sel
- chown system system proc/pin_switch/iis2clk_pin_in_sel
- chown system system proc/pin_switch/iis3_sys_sel/cp0_iis3
- chown system system proc/pin_switch/iis2di_pin_in_sel
- chown system system proc/pin_switch/iis3mck_pin_in_sel
- chown system system proc/pin_switch/iis2_sys_sel/cp0_iis2
- chown system system proc/pin_switch/iis2_sys_sel/cp1_iis2
- chown system system proc/pin_switch/iis2lrck_pin_in_sel
- chown system system proc/pin_switch/vbc_dac_iislrck_pin_in_sel
- chown system system proc/pin_switch/iis3_sys_sel/ap_iis3
- chown system system proc/pin_switch/iis3_sys_sel/cp2_iis3
- chown system system proc/pin_switch/vbc_dac_iisclk_pin_in_sel
- chown system system proc/pin_switch/iis3clk_pin_in_sel
- chown system system proc/pin_switch/iis3lrck_pin_in_sel
- chown system system proc/pin_switch/iis2mck_pin_in_sel
- chown system system proc/pin_switch/iis2_sys_sel/ap_iis2
- 
- chmod 0664 proc/pin_switch/vbc_adc_iisdi_pin_in_sel
- chmod 0664 proc/pin_switch/vbc_adc_iislrck_pin_in_sel
- chmod 0664 proc/pin_switch/vbc_adc_iisclk_pin_in_sel
- chmod 0664 proc/pin_switch/iis2_sys_sel/cp2_iis2
- chmod 0664 proc/pin_switch/iis3_sys_sel/cp1_iis3
- chmod 0664 proc/pin_switch/iis3di_pin_in_sel
- chmod 0664 proc/pin_switch/iis2clk_pin_in_sel
- chmod 0664 proc/pin_switch/iis3_sys_sel/cp0_iis3
- chmod 0664 proc/pin_switch/iis2di_pin_in_sel
- chmod 0664 proc/pin_switch/iis3mck_pin_in_sel
- chmod 0664 proc/pin_switch/iis2_sys_sel/cp0_iis2
- chmod 0664 proc/pin_switch/iis2_sys_sel/cp1_iis2
- chmod 0664 proc/pin_switch/iis2lrck_pin_in_sel
- chmod 0664 proc/pin_switch/vbc_dac_iislrck_pin_in_sel
- chmod 0664 proc/pin_switch/iis3_sys_sel/ap_iis3
- chmod 0664 proc/pin_switch/iis3_sys_sel/cp2_iis3
- chmod 0664 proc/pin_switch/vbc_dac_iisclk_pin_in_sel
- chmod 0664 proc/pin_switch/iis3clk_pin_in_sel
- chmod 0664 proc/pin_switch/iis3lrck_pin_in_sel
- chmod 0664 proc/pin_switch/iis2mck_pin_in_sel
- chmod 0664 proc/pin_switch/iis2_sys_sel/ap_iis2
- 
-    
-
     chown system system proc/pin_switch/bt_iis_sys_sel/cp0_iis2
     chown system system proc/pin_switch/bt_iis_sys_sel/cp0_iis3
     chown system system proc/pin_switch/bt_iis_sys_sel/cp0_iis0
@@ -187,7 +174,8 @@ on boot
     chmod 0660 /dev/bcm_log
     chown system system /dev/bcm_audio_log
     chmod 0660 /dev/bcm_audio_log
-	chmod 0770 /dev/snd/controlC0
+    chown system system /dev/ttyGS0
+    chmod 0770 /dev/snd/controlC0
 
     chown system system /proc/bcm_fuse_net_config
     chown system system /dev/block/mmcblk0
@@ -196,6 +184,28 @@ on boot
 
     # change owner of sysrpc/mtest to allow atx/atxd access
     chown system system /sys/kernel/sysrpc/mtest
+
+# Battery
+   chown system radio /sys/class/power_supply/battery/batt_reset_soc
+   chown system radio /sys/class/power_supply/battery/batt_slate_mode
+   chown system radio /sys/class/power_supply/battery/factory_mode
+   chown system radio /sys/class/power_supply/battery/siop_level
+   chown system radio /sys/class/power_supply/battery/wc_enable
+   chown system radio /sys/class/power_supply/battery/update
+   chown sdcard_rw sdcard_rw /sys/class/power_supply/battery/call
+   chown sdcard_rw sdcard_rw /sys/class/power_supply/battery/video
+   chown sdcard_rw sdcard_rw /sys/class/power_supply/battery/music
+   chown sdcard_rw sdcard_rw /sys/class/power_supply/battery/browser
+   chown sdcard_rw sdcard_rw /sys/class/power_supply/battery/hotspot
+   chown sdcard_rw sdcard_rw /sys/class/power_supply/battery/camera
+   chown system radio /sys/class/power_supply/battery/talk_wcdma
+   chown system radio /sys/class/power_supply/battery/talk_gsm
+   chown system radio /sys/class/power_supply/battery/call
+   chown system radio /sys/class/power_supply/battery/data_call
+   chown system radio /sys/class/power_supply/battery/gps
+   chown system radio /sys/class/power_supply/battery/wifi
+   chown system radio /sys/class/power_supply/battery/lte
+   chown system radio /sys/class/power_supply/battery/lcd
 
 # fake some battery state
     setprop status.battery.state Slow
@@ -221,7 +231,6 @@ on boot
     chown radio system /sys/class/secgpio_check/secgpio_check_all/gpioinit_check
     chown radio system /sys/class/secgpio_check/secgpio_check_all/gpiosleep_check
 
-
     # For WV DRM
     chown drm drm /dev/bcm_kbox
     chmod 0660 /dev/bcm_kbox
@@ -242,42 +251,47 @@ on boot
 # SEC_PRODUCT_FEATURE_COMMON_USE_MULTISIM
     setprop ro.multisim.simslotcount 2
 
+#wcdma rild service
+service ril-daemon /system/bin/rild -l /system/lib/libreference-ril_sp.so -m w -n 0
+    class core
+    socket rild stream 660 root radio
+    socket rild-debug stream 660 radio system
+    disabled
+    user root
+    group radio cache inet misc audio sdcard_rw log shell sdcard_r
+
+service ril-daemon2 /system/bin/rild -l /system/lib/libreference-ril_sp.so -m w -n 1
+    class core
+    socket rild1 stream 660 root radio
+    socket rild-debug1 stream 660 radio system
+    disabled
+    user root
+    group radio cache inet misc audio sdcard_rw log shell sdcard_r
+
+service ril-daemon3 /system/bin/rild -l /system/lib/libreference-ril_sp.so -m w -n 2
+    class core
+    socket rild2 stream 660 root radio
+    socket rild-debug2 stream 660 radio system
+    disabled
+    user root
+    group radio cache inet misc audio sdcard_rw log shell sdcard_r
+
 on fs
-#    mount_all /fstab.kanas3g
+#    mount_all /fstab.kanas3gxx
 # Temporary hack for root access
-	chmod 6755 /system/xbin/su
-#permissions for cpufreq
-    chown radio system sys/power/cpufreq_min_limit
-    chown radio system sys/power/cpufreq_max_limit
-    chown radio system sys/power/cpufreq_table
-    chmod 0660 /sys/power/cpufreq_min_limit
-    chmod 0660 /sys/power/cpufreq_max_limit
-    chmod 0660 /sys/power/cpufreq_table
+    chmod 6755 /system/xbin/su
 
-# permissions for sprdemand
-    chown radio system /sys/devices/system/cpu/cpufreq/sprdemand/cpu_num_min_limit
-    chown radio system /sys/devices/system/cpu/cpufreq/sprdemand/cpu_num_limit
-    chown radio system /sys/devices/system/cpu/cpufreq/sprdemand/io_is_busy
-    chown radio system /sys/devices/system/cpu/cpufreq/sprdemand/up_threshold
-    chmod 0660 /sys/devices/system/cpu/cpufreq/sprdemand/cpu_num_min_limit
-    chmod 0660 /sys/devices/system/cpu/cpufreq/sprdemand/cpu_num_limit
-    chmod 0660 /sys/devices/system/cpu/cpufreq/sprdemand/io_is_busy
-    chmod 0660 /sys/devices/system/cpu/cpufreq/sprdemand/up_threshold
+#for efs
+    chown radio system /efs
+    chmod 0771 /efs
 
-# permissions for sensors (accelerometer)
-    chown system system /sys/class/input/input0/enable
-    chown system system /sys/class/input/input0/delay
-    chown system system /sys/class/input/input0/poll_delay
-    chmod 0660 /sys/class/input/input0/enable
-    chmod 0660 /sys/class/input/input0/delay
-    chmod 0660 /sys/class/input/input0/poll_delay
-
-    chown system system /sys/class/input/input1/enable
-    chown system system /sys/class/input/input1/delay
-    chown system system /sys/class/input/input1/poll_delay
-    chmod 0660 /sys/class/input/input1/enable
-    chmod 0660 /sys/class/input/input1/delay
-    chmod 0660 /sys/class/input/input1/poll_delay
+# CSR GPS
+    chown system system /proc/driver/sirf
+# Broadcom GPS
+    chown system system /dev/ttyS2
+    chmod 0660 /dev/ttyS2
+    chown system system /sys/class/sec/gps/GPS_PWR_EN/value
+    chmod 0664 /sys/class/sec/gps/GPS_PWR_EN/value
 
 # permissions for bluetooth.
    setprop ro.bt.bdaddr_path "/efs/bluetooth/bt_addr"
@@ -293,6 +307,8 @@ on fs
    chown bluetooth bluetooth /data/misc/bluetoothd
    chown bluetooth bluetooth /data/misc/bluetooth
    chown root bluetooth /dev/ttyS0
+    chmod 0770 /dev/ttyS0
+    chmod 0770 /dev/ttyS1
     chmod 0660 /sys/class/rfkill/rfkill0/state
     chown bluetooth bluetooth /sys/class/rfkill/rfkill0/state
     chown bluetooth bluetooth /sys/class/rfkill/rfkill0/type
@@ -310,16 +326,6 @@ on fs
 #    chown nfc nfc /data/bcmnfc/libnfc-brcm-20791b03.conf
 #    chmod 666 /data/bcmnfc/libnfc-brcm-20791b04.conf
 #    chmod 666 /data/bcmnfc/libnfc-brcm-20791b03.conf
-
-#for ASE application
-#   mkdir /data/brcm
-#   mkdir /data/brcm/ase
-#   mkdir /data/brcm/ase/extras
-#   mkdir /data/brcm/ase/scripts
-#   chmod 0777 /data/brcm
-#   chmod 0777 /data/brcm/ase
-#   chmod 0777 /data/brcm/ase/extras
-#   chmod 0777 /data/brcm/ase/scripts
 
 #runSysCmd
     mkdir /data/brcm/utils
@@ -341,6 +347,7 @@ on fs
 chmod 0755 /system/etc/init_touch
 
 on post-fs-data
+    mkdir /data/media 0770 media_rw media_rw
     setprop vold.post_fs_data_done 1
 
 service napa_ts /system/bin/sh /system/etc/init_touch
@@ -349,8 +356,15 @@ service napa_ts /system/bin/sh /system/etc/init_touch
     group root
     oneshot
 
-service at_distributor /system/bin/at_distributor
+# GPS
+service gpsd /system/bin/gpsd -c /system/etc/gps.xml
     class main
+    user gps
+    group system inet net_raw
+    ioprio be 0
+
+service at_distributor /system/bin/at_distributor
+    class late_start
     user root
     group radio misc log
 
@@ -393,21 +407,21 @@ on property:persist.sys.dataprefer.simid=0
 
 #for DUN policy routing
 service config_dun_up /system/bin/sh /system/etc/configure_dun.sh up
-     disabled
-     oneshot
+    disabled
+    oneshot
 
 service config_dun_down /system/bin/sh /system/etc/configure_dun.sh do
-     disabled
-     oneshot
+    disabled
+    oneshot
 
 #DUN on
 on property:brcm.dun.state=1
-     write /data/brcm/utils/aa.txt  brcm.dun.state=1
-     start config_dun_up
+    write /data/brcm/utils/aa.txt  brcm.dun.state=1
+    start config_dun_up
 
 #DUN off
 on property:brcm.dun.state=0
-     start config_dun_down
+    start config_dun_down
 
 
 # When the default SIM for data connections is updated,
@@ -428,12 +442,9 @@ service sdcard /system/bin/sdcard -u 1023 -g 1023 -l /data/media /mnt/shell/emul
     class late_start
     oneshot
 
-#on property:ro.fuse_sdcard=true
-    #start sdcard
-
 service fuse_extSdCard /system/bin/sdcard -u 1023 -g 1023 -w 1023 -d /mnt/media_rw/extSdCard /storage/extSdCard
     class late_start
-	disabled
+    disabled
     oneshot
 
 # This will make sure that sdcard service starts as late_start.
@@ -444,7 +455,7 @@ on property:vold.decrypt=trigger_restart_framework
     setprop ro.fuse_sdcard ${persist.fuse_sdcard}
 
 # Runtime Compcache
-service rtccd /system/bin/rtccd3 -a 200m
+service rtccd /system/bin/rtccd3 -a 120m
     class core
     user root
     oneshot
@@ -456,58 +467,22 @@ service apanic_rename /system/bin/sh /system/etc/apanic_rename.sh
     group log sdcard_rw
     oneshot
 
-#service copy_cp_imgs /system/bin/sh /system/etc/copy_cp_imgs.sh
-#    class main
-#    oneshot
-#    user root
-#    disabled
-on property:dev.bootcomplete=1
-    write /sys/devices/system/cpu/cpufreq/sprdemand/cpu_hotplug_disable 0
-    chown radio system /sys/devices/system/cpu/cpufreq/sprdemand/cpu_hotplug_disable
-    chown radio system /sys/devices/system/cpu/cpufreq/sprdemand/cpu_num_limit
-    chown radio system /sys/devices/system/cpu/cpufreq/sprdemand/cpu_num_min_limit
-    chmod 0660 /sys/devices/system/cpu/cpufreq/sprdemand/cpu_hotplug_disable
-    chmod 0660 /sys/devices/system/cpu/cpufreq/sprdemand/cpu_num_limit
-    chmod 0660 /sys/devices/system/cpu/cpufreq/sprdemand/cpu_num_min_limit
+service copy_cp_imgs /system/bin/sh /system/etc/copy_cp_imgs.sh
+    class main
+    oneshot
+    user root
+    disabled
+
 
 #Indicate boot complete to PM to complete PM initialization
-#on property:dev.bootcomplete=1
-#    write /dev/console [AUTOTEST]BOOT_COMPLETE
-#    write /sys/module/pwr_mgr/parameters/pm_late_init 1
-#    write /sys/class/input/input1/enable 1
-#    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor interactive
-#    chown system system /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq
-#    chown system system /sys/devices/system/cpu/cpufreq/interactive/go_hispeed_load
-#    chown system system /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay
-#    chown system system /sys/devices/system/cpu/cpufreq/interactive/min_sample_time
-#    chown system system /sys/devices/system/cpu/cpufreq/interactive/timer_rate
-#    chown system system /sys/devices/system/cpu/cpufreq/interactive/boostpulse
-#    chmod 660 /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq
-#    chmod 660 /sys/devices/system/cpu/cpufreq/interactive/go_hispeed_load
-#    chmod 660 /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay
-#    chmod 660 /sys/devices/system/cpu/cpufreq/interactive/min_sample_time
-#    chmod 660 /sys/devices/system/cpu/cpufreq/interactive/timer_rate
-#    chmod 220 /sys/devices/system/cpu/cpufreq/interactive/boostpulse
-#    start copy_cp_imgs
-
+on property:dev.bootcomplete=1
+    write /dev/console [AUTOTEST]BOOT_COMPLETE
+    write /sys/module/pwr_mgr/parameters/pm_late_init 1
+    write /sys/class/input/input1/enable 1
+    start copy_cp_imgs
+    write /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/governor "ondemand"    
 # service battery_charger /charger
 #    class charger
 
-#on charger
-#write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor "powersave"
-
-#DataRouter
-service DR-daemon /system/bin/ddexe
-    class main
-    user root
-    group system radio inet net_raw
-
-service SMD-daemon /system/bin/smdexe
-    class main
-    user root
-    group system radio inet net_raw
-
-service BCS-daemon /system/bin/connfwexe
-    class main
-    user root
-    group system radio inet net_raw
+on charger
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor "powersave"

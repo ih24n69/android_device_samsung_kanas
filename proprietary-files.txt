@@ -21,8 +21,9 @@ lib/libsamsungpowersound.so
 
 # GPS
 etc/gps.conf
-#etc/gps.xml
-#bin/gpsd
+etc/gps.xml
+bin/gpsd
+bin/gps.cer
 lib/libsprd_agps_agent.so
 lib/hw/gps.default.so
 
@@ -54,7 +55,7 @@ lib/libomission_avoidance.so
 #lib/libnvexchange.so
 #lib/libvbpga.so
 #lib/libdumpdata.so
-#lib/libatchannel.so
+lib/libatchannel.so
 #lib/libsonivox.so
 #lib/libsoundalive.so
 #lib/lib_soundaliveresampler.so
@@ -78,8 +79,8 @@ bin/macloader
 vendor/firmware/BCM4330B1_002.001.003.1025.1303.hcd
 
 # RIL
-#etc/nvitem_td.cfg
-#etc/nvitem_w.cfg
+etc/nvitem_td.cfg
+etc/nvitem_w.cfg
 bin/rild
 bin/modemd
 bin/nvitemd
@@ -98,7 +99,7 @@ lib/libsecnativefeature.so
 #lib/libseccameracore.so
 #lib/libseccamera_jni.so
 lib/libisp.so
-#lib/libmorpho_facesolid.so
+lib/libmorpho_facesolid.so
 lib/libmorpho_easy_hdr.so
 lib/hw/camera.sc8830.so
 lib/hw/camera2.sc8830.so
@@ -137,11 +138,11 @@ lib/hw/sensors.sc8830.so
 # DRM
 lib/libwvm.so
 lib/libomafldrm.so
-lib/drm/libdrmwvmplugin.so
+#lib/drm/libdrmwvmplugin.so
 lib/drm/libomaplugin.so
 vendor/lib/libwvdrm_L3.so
 vendor/lib/libWVStreamControlAPI_L3.so
-vendor/lib/mediadrm/libwvdrmengine.so
+#vendor/lib/mediadrm/libwvdrmengine.so
 
 # Battery
 bin/lpm

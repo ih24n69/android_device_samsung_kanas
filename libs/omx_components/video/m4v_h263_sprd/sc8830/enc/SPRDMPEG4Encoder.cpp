@@ -34,7 +34,7 @@
 //#include <gui/ISurfaceTexture.h>
 
 #include <linux/ion.h>
-#include <binder/MemoryHeapIon.h>
+#include <binder/MemoryHeapIon.SPRD.h>
 
 #include <dlfcn.h>
 
@@ -806,6 +806,11 @@ OMX_ERRORTYPE SPRDMPEG4Encoder::internalSetParameter(
     case OMX_IndexParamStoreMetaDataBuffer:
     {
         StoreMetaDataInBuffersParams *pStoreMetaData = (StoreMetaDataInBuffersParams *)params;
+
+        // Ignore this setting on output port
+        if (pStoreMetaData->nPortIndex == 1 /* kOutputPortIndex */)
+            return OMX_ErrorNone;
+
         mStoreMetaData = pStoreMetaData->bStoreMetaData;
         return OMX_ErrorNone;
     }

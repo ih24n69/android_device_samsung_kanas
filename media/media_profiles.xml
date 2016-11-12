@@ -500,7 +500,7 @@
 
     <AudioEncoderCap name="aac" enabled="true"
         minBitRate="8000" maxBitRate="96000"
-        minSampleRate="8000" maxSampleRate="48000"
+        minSampleRate="48000" maxSampleRate="48000"
         minChannels="1" maxChannels="1" />
 
     <AudioEncoderCap name="amrwb" enabled="true"
