@@ -1,12 +1,12 @@
 #
-# Copyright (C) 2016 The Android Open Source Project
-# Copyright (C) 2014 The CyanogenMod Project
+# Copyright (C) 2016 Android Open Source Project
+# Copyright (C) 2016 The CyanogenMod Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#      http://www.apache.org/licenses/LICENSE-2.0
+# http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,16 +15,8 @@
 # limitations under the License.
 #
 
-# This file is executed by build/envsetup.sh, and can use anything
-# defined in envsetup.sh.
-#
-# In particular, you can add lunch options with the add_lunch_combo
-# function: add_lunch_combo generic-eng
+LOCAL_PATH := $(call my-dir)
 
-for rom in aosp cm
-do
-  for targetBuildVariant in eng user userdebug
-  do
-    add_lunch_combo ${rom}_kanas-${targetBuildVariant}
-  done
-done
+ifneq (,$(filter kanas,$(TARGET_DEVICE)))
+include $(call all-makefiles-under,$(LOCAL_PATH))
+endif
