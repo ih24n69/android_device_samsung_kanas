@@ -1,0 +1,23 @@
+# <src> <mnt_point> <type> <mnt_flags and options> <fs_mgr_flags>
+
+# Internal storage
+/dev/block/platform/sprd-sdhci.3/by-name/system /system ext4 ro,barrier=1 wait
+/dev/block/platform/sprd-sdhci.3/by-name/userdata /data ext4 nosuid,nodev,noatime,noauto_da_alloc,discard,journal_async_commit,errors=panic wait,check,formattable,encryptable=footer
+/dev/block/platform/sprd-sdhci.3/by-name/userdata /data f2fs rw,nosuid,nodev,noatime,inline_xattr wait,check,formattable,encryptable=footer
+/dev/block/platform/sprd-sdhci.3/by-name/CSC /cache ext4 nosuid,nodev,noatime,noauto_da_alloc,discard,journal_async_commit,errors=panic wait,check,formattable
+/dev/block/platform/sprd-sdhci.3/by-name/CSC /cache f2fs rw,nosuid,nodev,noatime,inline_xattr wait,check,formattable
+/dev/block/platform/sprd-sdhci.3/by-name/efs /efs ext4 nosuid,nodev,noatime,noauto_da_alloc,discard,journal_async_commit,errors=panic wait,check
+/dev/block/platform/sprd-sdhci.3/by-name/PRODNV /productinfo ext4 nosuid,nodev,noatime,noauto_da_alloc,discard,journal_async_commit,errors=panic wait,check
+
+# External SD card
+/devices/platform/sprd-sdhci.0/mmc_host* auto auto defaults voldmanaged=sdcard1:auto,encryptable=userdata
+
+# USB OTG
+#/devices/platform/dwc_otg.0* auto auto defaults voldmanaged=usbdisk:auto
+
+# Recovery
+/dev/block/platform/sprd-sdhci.3/by-name/HIDDEN /preload ext4 defaults recoveryonly
+/dev/block/platform/sprd-sdhci.3/by-name/KERNEL /boot emmc defaults recoveryonly
+/dev/block/platform/sprd-sdhci.3/by-name/RECOVERY /recovery emmc defaults recoveryonly
+/dev/block/platform/sprd-sdhci.3/by-name/modem /modem emmc defaults recoveryonly
+/dev/block/platform/sprd-sdhci.3/by-name/DSP /modem2 emmc defaults recoveryonly
