@@ -28,7 +28,7 @@ PRODUCT_RELEASE_NAME := kanas
 TARGET_UNOFFICIAL_BUILD_ID := SandroidTeam
 
 # Inherit some common CM stuff.
-$(call inherit-product, vendor/aosp/config/common.mk)
+$(call inherit-product, vendor/aosp/common.mk)
 
 # Inherit device configuration
 $(call inherit-product, device/samsung/kanas/device_kanas.mk)
