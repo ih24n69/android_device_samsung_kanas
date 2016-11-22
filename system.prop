@@ -29,6 +29,10 @@ ro.modem.w.assert=/dev/spipe_w2
 ro.modem.w.vbc=/dev/spipe_w6
 ro.modem.w.id=0
 
+#Multiuser
+fw.show_multiuserui=1
+fw.max_users=5
+
 #ro.modem.wcn.enable=1
 #ro.modem.wcn.dev=/dev/cpwcn
 #ro.modem.wcn.tty=/deiv/stty_wcn
