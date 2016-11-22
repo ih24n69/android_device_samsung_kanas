@@ -44,6 +44,10 @@ ro.telephony.ril_class=kanasRIL
 ro.telephony.ril.config=setPrefNwTypeOnUnsolConnected
 ro.ril.telephony.mqanelements=6
 
+#Multiuser
+fw.show_multiuserui=1
+fw.max_users=5
+
 # Low memory device
 ro.config.low_ram=true
 persist.sys.force_highendgfx=true
