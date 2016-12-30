@@ -404,3 +404,13 @@ service srtd /system/xbin/srtd
     user root
     group root
     oneshot
+
+# LPM
+on property:ro.bootmode=charger
+	mount ext4 /dev/block/platform/sprd-sdhci.3/by-name/system /system  wait ro
+on property:ro.bootmode=charger
+    class_start sec-charger
+
+service playlpm /system/bin/lpm
+    class sec-charger
+    critical
