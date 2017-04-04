@@ -25,7 +25,7 @@ $(call inherit-product, device/common/gps/gps_us_supl.mk)
 $(call inherit-product, device/samsung/sprd-common/common.mk)
 
 # Inherit from vendor
-$(call inherit-product, vendor/samsung/vivalto3gvn/vivalto3gvn-vendor.mk)
+$(call inherit-product, vendor/samsung/kanas/kanas-vendor.mk)
 
 # Dalvik heap config
 $(call inherit-product, frameworks/native/build/phone-hdpi-512-dalvik-heap.mk)
@@ -222,10 +222,10 @@ PRODUCT_PROPERTY_OVERRIDES += \
 	dalvik.vm.image-dex2oat-Xmx=48m \
 	dalvik.vm.image-dex2oat-filter=everything
 
-#DEBUGGING ON
+# Enable insecure ADB for userdebug builds
 ADDITIONAL_DEFAULT_PROPERTIES += \
-			ro.adb.secure=0 \
-			ro.debuggable=1 \
-			persist.sys.root_access=1 \
-			persist.service.adb.enable=1 \
-			persist.sys.usb.config=mtp,adb
+	ro.secure=0 \
+	ro.adb.secure=0 \
+	ro.debuggable=1 \
+	persist.sys.root_access=1 \
+	persist.service.adb.enable=1

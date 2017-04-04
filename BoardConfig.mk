@@ -16,7 +16,7 @@
 -include device/samsung/sprd-common/BoardConfigCommon.mk
 
 # Inherit from the proprietary version
--include vendor/samsung/vivalto3gvn/BoardConfigVendor.mk
+-include vendor/samsung/kanas/BoardConfigVendor.mk
 
 # Platform
 TARGET_ARCH := arm
@@ -31,6 +31,8 @@ ARCH_ARM_HAVE_TLS_REGISTER := true
 TARGET_BOOTLOADER_BOARD_NAME := SC7735S
 BOARD_VENDOR := samsung
 
+SOC_SCX35 := true
+
 # Config u-boot
 TARGET_NO_BOOTLOADER := true
 
@@ -41,7 +43,7 @@ BOARD_USERDATAIMAGE_PARTITION_SIZE := 2457862144
 BOARD_CACHEIMAGE_PARTITION_SIZE := 209715200
 BOARD_FLASH_BLOCK_SIZE := 131072
 TARGET_USERIMAGES_USE_EXT4 := true
-TARGET_USERIMAGES_USE_F2FS := true
+#TARGET_USERIMAGES_USE_F2FS := true
 BOARD_HAS_LARGE_FILESYSTEM := true
 
 # RIL
@@ -92,7 +94,7 @@ BOARD_USE_LIBATCHANNEL_WRAPPER := true
 COMMON_GLOBAL_CFLAGS += -DBOARD_CANT_REALLOCATE_OMX_BUFFERS
 
 # Board specific features
-BOARD_USE_SAMSUNG_COLORFORMAT := true
+#BOARD_USE_SAMSUNG_COLORFORMAT := true
 COMMON_GLOBAL_CFLAGS += -DSPRD_HARDWARE
 
 # Healthd
@@ -127,14 +129,14 @@ BOARD_SEPOLICY_DIRS += device/samsung/kanas/sepolicy
 MALLOC_IMPL := dlmalloc
 
 # Enable dex-preoptimization to speed up the first boot sequence
-#WITH_DEXPREOPT := true
-#WITH_DEXPREOPT_PIC := true
+WITH_DEXPREOPT := true
+WITH_DEXPREOPT_PIC := true
 
 # Recovery
 BOARD_HAS_DOWNLOAD_MODE := true
 TARGET_RECOVERY_PIXEL_FORMAT := "RGBX_8888"
 TARGET_RECOVERY_FSTAB := device/samsung/kanas/rootdir/fstab.sc8830
-TARGET_RECOVERY_TWRP := true
+TARGET_RECOVERY_TWRP := false
 
 ifeq ($(TARGET_RECOVERY_TWRP),true)
 RECOVERY_VARIANT := twrp
@@ -159,3 +161,36 @@ BOARD_USE_CUSTOM_RECOVERY_FONT := \"roboto_10x18.h\"
 BOARD_UMS_LUNFILE := "/sys/devices/virtual/android_usb/android0/f_mass_storage/lun/file"
 TARGET_USE_CUSTOM_LUN_FILE_PATH := "/sys/devices/virtual/android_usb/android0/f_mass_storage/lun/file"
 endif
+
+#CAMERA CONFIG
+# Camera
+TARGET_BOARD_CAMERA_HAL_VERSION := HAL1.0
+#android zsl capture
+TARGET_BOARD_CAMERA_ANDROID_ZSL_MODE := false
+#back camera rotation capture
+TARGET_BOARD_BACK_CAMERA_ROTATION := false
+#front camera rotation capture
+TARGET_BOARD_FRONT_CAMERA_ROTATION := false
+#rotation capture
+TARGET_BOARD_CAMERA_ROTATION_CAPTURE := false
+# select camera 2M,3M,5M,8M
+CAMERA_SUPPORT_SIZE := 5M
+#
+TARGET_BOARD_NO_FRONT_SENSOR := false
+#
+TARGET_BOARD_CAMERA_FLASH_CTRL := true
+#select camera zsl cap mode
+TARGET_BOARD_CAMERA_CAPTURE_MODE := false
+#face detect
+TARGET_BOARD_CAMERA_FACE_DETECT := false
+#
+TARGET_BOARD_CAMERA_USE_IOMMU := true
+TARGET_BOARD_CAMERA_DMA_COPY := true
+#
+TARGET_BOARD_BACK_CAMERA_INTERFACE := ccir
+TARGET_BOARD_FRONT_CAMERA_INTERFACE := ccir
+#select continuous auto focus
+TARGET_BOARD_CAMERA_CAF := true
+#
+CONFIG_CAMERA_ISP := true
+COMMON_GLOBAL_CFLAGS += -DCONFIG_CAMERA_ISP

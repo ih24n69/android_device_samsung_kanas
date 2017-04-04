@@ -48,6 +48,24 @@ ro.ril.telephony.mqanelements=6
 fw.show_multiuserui=1
 fw.max_users=5
 
+# NOOB!! DO NOT CHANGE!!
+# TOLONG JANGAN DIRUBAH-RUBAH BAGIAN INI
+# JIKA KALIAN MAU MERUBAH BAGIAN INI
+# SILAHKAN BUILD ROM SENDIRI, NYEWA WEB HOSTING SENDIRI, DAN MASUKAN APP STATS SENDIRI!!!
+# TERIMAKSIH TIDAK MERUBAH HAL INI DI BAWAH.
+########################################
+# (Muhammad Ihsan ROM User Statistics) #
+#######################################
+ro.romstats.url=http://sandroid-team.com/romstats/
+ro.romstats.name=LineageOS-MM-SandroidTeam-kanas
+ro.romstats.version=Testing
+ro.romstats.tframe=1
+ro.romstats.askfirst=0
+ro.romstats.ga=UA-0000000-0
+########################################
+# (Muhammad Ihsan ROM User Statistics) #
+#######################################
+
 # Low memory device
 ro.config.low_ram=true
 persist.sys.force_highendgfx=true

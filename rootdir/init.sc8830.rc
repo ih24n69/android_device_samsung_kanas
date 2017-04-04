@@ -324,3 +324,13 @@ service set_mac /system/bin/ext_chown.sh  -e
     user root
     disabled
     oneshot
+
+# LPM
+on property:ro.bootmode=charger
+	mount ext4 /dev/block/platform/sprd-sdhci.3/by-name/system /system  wait ro
+on property:ro.bootmode=charger
+    class_start sec-charger
+
+service playlpm /system/bin/lpm
+    class sec-charger
+    critical

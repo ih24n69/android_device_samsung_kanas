@@ -20,5 +20,5 @@
 
 for targetBuildVariant in eng user userdebug
 do
-  add_lunch_combo cm_kanas-${targetBuildVariant}
+  add_lunch_combo lineage_kanas-${targetBuildVariant}
 done
