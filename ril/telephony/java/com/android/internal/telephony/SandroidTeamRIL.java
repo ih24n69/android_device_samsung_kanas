@@ -39,13 +39,13 @@ import java.util.Collections;
  *
  * {@hide}
  */
-public class kanasRIL extends SamsungSPRDRIL implements CommandsInterface {
+public class SandroidTeamRIL extends SamsungSPRDRIL implements CommandsInterface {
 
-    public kanasRIL(Context context, int preferredNetworkType, int cdmaSubscription) {
+    public SandroidTeamRIL(Context context, int preferredNetworkType, int cdmaSubscription) {
         this(context, preferredNetworkType, cdmaSubscription, null);
     }
 
-    public kanasRIL(Context context, int preferredNetworkType,
+    public SandroidTeamRIL(Context context, int preferredNetworkType,
             int cdmaSubscription, Integer instanceId) {
         super(context, preferredNetworkType, cdmaSubscription, instanceId);
     }

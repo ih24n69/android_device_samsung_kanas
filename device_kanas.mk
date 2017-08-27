@@ -31,7 +31,7 @@ $(call inherit-product, vendor/samsung/kanas/kanas-vendor.mk)
 $(call inherit-product, frameworks/native/build/phone-hdpi-512-dalvik-heap.mk)
 
 # WiFi BCMDHD
-$(call inherit-product, hardware/broadcom/wlan/bcmdhd/firmware/bcm4330/device-bcm.mk)
+#$(call inherit-product, hardware/broadcom/wlan/bcmdhd/firmware/bcm4330/device-bcm.mk)
 
 # Overlay
 DEVICE_PACKAGE_OVERLAYS += device/samsung/kanas/overlay
@@ -49,6 +49,7 @@ TARGET_SCREEN_WIDTH := 480
 ROOTDIR_FILES := \
 	$(LOCAL_PATH)/rootdir/init.rc \
 	$(LOCAL_PATH)/rootdir/init.board.rc \
+	$(LOCAL_PATH)/rootdir/init.storage.rc \
 	$(LOCAL_PATH)/rootdir/init.sc8830.rc \
 	$(LOCAL_PATH)/rootdir/init.sc8830.usb.rc \
 	$(LOCAL_PATH)/rootdir/init.sc8830_ss.rc \
@@ -76,8 +77,8 @@ KEYLAYOUT_FILES := \
 PRODUCT_COPY_FILES += \
 	$(foreach f,$(KEYLAYOUT_FILES),$(f):system/usr/keylayout/$(notdir $(f)))
 
-# Filesystem management tools
 PRODUCT_PACKAGES += \
+	setup_fs \
 	e2fsck \
 	f2fstat \
 	fsck.f2fs \
@@ -107,6 +108,7 @@ PRODUCT_PACKAGES += \
 	gralloc.sc8830 \
 	hwcomposer.sc8830 \
 	sprd_gsp.sc8830 \
+	libmemoryheapion \
 	libion_sprd \
 	libdither \
 
@@ -122,6 +124,15 @@ PRODUCT_PACKAGES += \
 	libstagefright_sprd_vpxdec \
 	libstagefright_sprd_aacdec \
 	libstagefright_sprd_mp3dec \
+	libomx_aacdec_sprd.so \
+	libomx_avcdec_hw_sprd.so \
+	libomx_avcdec_sw_sprd.so \
+	libomx_avcenc_hw_sprd.so \
+	libomx_m4vh263dec_hw_sprd.so \
+	libomx_m4vh263dec_sw_sprd.so \
+	libomx_m4vh263enc_hw_sprd.so \
+	libomx_mp3dec_sprd.so \
+	libomx_vpxdec_hw_sprd.so
 
 # Lights
 PRODUCT_PACKAGES += \
@@ -130,12 +141,17 @@ PRODUCT_PACKAGES += \
 # Bluetooth
 PRODUCT_PACKAGES += \
 	bluetooth.default \
+	libbluetooth_jni \
 
 # Audio
 PRODUCT_PACKAGES += \
 	audio.primary.sc8830 \
+	audio_policy.sc8830 \
+	audio.r_submix.default \
+	audio.usb.default \
 	libaudio-resampler \
 	libatchannel_wrapper \
+	libtinyalsa
 
 AUDIO_CONFIGS := \
 	device/samsung/kanas/configs/audio/audio_policy.conf \
@@ -147,12 +163,9 @@ AUDIO_CONFIGS := \
 PRODUCT_COPY_FILES += \
 	$(foreach f,$(AUDIO_CONFIGS),$(f):system/etc/$(notdir $(f))) \
 
-# Common libraries
-PRODUCT_PACKAGES += \
-	libmemoryheapion_sprd
-
 # Shim libraries
 PRODUCT_PACKAGES += \
+	libstlport \
 	libril_shim \
 	libgps_shim \
 
@@ -171,10 +184,10 @@ NVITEM_CONFIGS := \
 PRODUCT_COPY_FILES += \
 	$(foreach f,$(NVITEM_CONFIGS),$(f):system/etc/$(notdir $(f)))
 
-# Wifi
 WIFI_CONFIGS := \
 	device/samsung/kanas/configs/wifi/wpa_supplicant.conf \
-	device/samsung/kanas/configs/wifi/nvram_net.txt \
+	device/samsung/kanas/configs/wifi/wpa_supplicant_overlay.conf \
+	device/samsung/kanas/configs/wifi/p2p_supplicant_overlay.conf
 
 PRODUCT_COPY_FILES += \
 	$(foreach f,$(WIFI_CONFIGS),$(f):system/etc/wifi/$(notdir $(f)))

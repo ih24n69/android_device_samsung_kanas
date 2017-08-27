@@ -12,6 +12,9 @@ ro.sf.lcd_height=87
 ro.opengles.version=131072
 debug.hwui.render_dirty_regions=false
 
+persist.ttydev=ttyVUART0
+sf.metadata_use_plat_sw_codecs=1
+
 # DRM
 drm.service.enabled=1
 
@@ -39,8 +42,8 @@ persist.sys.modem.diag=,gser
 sys.usb.gser.count=2
 ro.ril.hsxpa=1
 ro.ril.gprsclass=10
-persist.radio.multisim.config=dsds
-ro.telephony.ril_class=kanasRIL
+persist.radio.multisim.config=none
+ro.telephony.ril_class=SandroidTeamRIL
 ro.telephony.ril.config=setPrefNwTypeOnUnsolConnected
 ro.ril.telephony.mqanelements=6
 
@@ -57,21 +60,21 @@ fw.max_users=5
 # (Muhammad Ihsan ROM User Statistics) #
 #######################################
 ro.romstats.url=http://sandroid-team.com/romstats/
-ro.romstats.name=LineageOS-MM-SandroidTeam-kanas
-ro.romstats.version=Testing
+ro.romstats.url=http://sandroid-team.net/romstats/
+ro.romstats.url=http://sandroid-team.xyz/romstats/
+ro.romstats.url=http://sandroid-team.web.id/romstats/
+ro.romstats.url=http://sandroid-team.id/romstats/
+ro.romstats.url=http://sandroid-team.tk/romstats/
+ro.romstats.url=http://sandroid-team.ml/romstats/
+ro.romstats.url=http://sandroid-team.ga/romstats/
+ro.romstats.name=LineageOS-SandroidTeam-kanas
+ro.romstats.version=6.0.1
 ro.romstats.tframe=1
 ro.romstats.askfirst=0
 ro.romstats.ga=UA-0000000-0
 ########################################
 # (Muhammad Ihsan ROM User Statistics) #
 #######################################
-
-# Low memory device
-ro.config.low_ram=true
-persist.sys.force_highendgfx=true
-config.disable_atlas=true
-ro.config.max_starting_bg=8
-ro.sys.fw.bg_apps_limit=16
 
 # zRAM
 ro.config.zram.compressor=lz4

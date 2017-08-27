@@ -18,7 +18,7 @@
 $(call inherit-product, vendor/cm/config/telephony.mk)
 
 # Custom unofficial build tag
-TARGET_UNOFFICIAL_BUILD_ID := SandroidTeam-Ih24n
+TARGET_UNOFFICIAL_BUILD_ID := SandroidTeam-Ih24n-Intan
 
 # Inherit some common CM stuff.
 $(call inherit-product, vendor/cm/config/common_full_phone.mk)

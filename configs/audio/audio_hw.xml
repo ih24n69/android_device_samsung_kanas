@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
      Copyright (C) 2016 The Android Open Source Project
      Copyright (C) 2016 The CyanogenMod Project
@@ -62,3 +63,4 @@
 		<dump_record index="9" item_name ="record.dump1" dump_file_name ="dump_r1.pcm" switch="0" />
 	</dumpmusic>
 </audio>
+
