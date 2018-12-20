@@ -15,6 +15,11 @@
 # USB OTG
 #/devices/platform/dwc_otg.0* auto auto defaults voldmanaged=usbdisk:auto
 
+# zRam
+#/dev/block/zram0 none swap defaults zramsize=347877376,swapprio=15
+/dev/block/zram0    none    swap    defaults    swapprio=0
+
+
 # Recovery
 /dev/block/platform/sprd-sdhci.3/by-name/HIDDEN /preload ext4 defaults recoveryonly
 /dev/block/platform/sprd-sdhci.3/by-name/KERNEL /boot emmc defaults recoveryonly

@@ -1,7 +1,0 @@
-on init
-    # FS
-    mkdir /efs
-    mkdir /modem
-    mkdir /modem2
-    mkdir /productinfo
-    mkdir /preload

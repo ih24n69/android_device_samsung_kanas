@@ -12,51 +12,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Inherit from SPRD common configs
--include device/samsung/sprd-common/BoardConfigCommon.mk
+# Some magic
+# on top line to make macro check scx35 common working
+SOC_SCX35 := true
+
+# Inherit from SCX35 common configs
+-include device/samsung/scx35-common/BoardConfigCommon.mk
 
 # Inherit from the proprietary version
 -include vendor/samsung/kanas/BoardConfigVendor.mk
 
 # Platform
-TARGET_ARCH := arm
-TARGET_BOARD_PLATFORM := sc8830
-TARGET_BOARD_PLATFORM_GPU := mali-400 MP
-TARGET_CPU_ABI := armeabi-v7a
-TARGET_CPU_ABI2 := armeabi
-TARGET_ARCH_VARIANT := armv7-a-neon
-TARGET_CPU_VARIANT := cortex-a7
-TARGET_CPU_SMP := false
 ARCH_ARM_HAVE_TLS_REGISTER := true
 TARGET_BOOTLOADER_BOARD_NAME := SC7735S
-BOARD_VENDOR := samsung
+TARGET_BOARD_PLATFORM_GPU := mali-400 MP
 
-# Some magic
-SOC_SCX35 := true
-
-# Config u-boot
-TARGET_NO_BOOTLOADER := true
+# Enable privacy guard's su
+WITH_SU := true
 
 # Img configuration
-BOARD_BOOTIMAGE_PARTITION_SIZE := 8388608
-BOARD_RECOVERYIMAGE_PARTITION_SIZE := 8388608
-BOARD_SYSTEMIMAGE_PARTITION_SIZE := 1111490560
-BOARD_USERDATAIMAGE_PARTITION_SIZE := 2457862144
-BOARD_CACHEIMAGE_PARTITION_SIZE := 209715200
-BOARD_FLASH_BLOCK_SIZE := 131072
+BOARD_BOOTIMAGE_PARTITION_SIZE := 15728640
+BOARD_RECOVERYIMAGE_PARTITION_SIZE := 15728640
+BOARD_SYSTEMIMAGE_PARTITION_SIZE := 1195376640
+BOARD_USERDATAIMAGE_PARTITION_SIZE := 2415919104
+BOARD_CACHEIMAGE_PARTITION_SIZE := 125829120
+BOARD_FLASH_BLOCK_SIZE := 4096
 TARGET_USERIMAGES_USE_EXT4 := true
 BOARD_HAS_LARGE_FILESYSTEM := true
-
-# RIL
-BOARD_RIL_CLASS += ../../../device/samsung/kanas/ril
-COMMON_GLOBAL_CFLAGS += -DDISABLE_ASHMEM_TRACKING
-
-# Bluetooth
-BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/kanas/bluetooth
-BOARD_BLUEDROID_VENDOR_CONF := device/samsung/kanas/bluetooth/libbt_vndcfg.txt
-
-# FM
-BOARD_HAVE_FMRADIO_BCM := false
 
 # Wifi
 BOARD_WLAN_DEVICE := bcmdhd
@@ -75,93 +57,58 @@ WIFI_DRIVER_NVRAM_PATH := "/system/etc/wifi/nvram_net.txt"
 WIFI_BAND := 802_11_ABG
 BOARD_HAVE_SAMSUNG_WIFI := true
 
-# HWC and Graphics config
-#BOARD_EGL_CFG := device/samsung/kanas/configs/egl/egl.cfg
-#BOARD_USE_MHEAP_SCREENSHOT := true
-#BOARD_EGL_WORKAROUND_BUG_10194508 := true
-#TARGET_RUNNING_WITHOUT_SYNC_FRAMEWORK := true
-#HWUI_COMPILE_FOR_PERF := true
-#TARGET_REQUIRES_SYNCHRONOUS_SETSURFACE := true
-#USE_SPRD_HWCOMPOSER := true
-#USE_OPENGL_RENDERER := true
-#USE_OVERLAY_COMPOSER_GPU := true
-#DEVICE_FORCE_VIDEO_GO_OVERLAYCOMPOSER := true
-#USE_SPRD_DITHER := true
-#TARGET_FORCE_HWC_FOR_VIRTUAL_DISPLAYS := true
-
-# Audio
-#BOARD_USES_TINYALSA_AUDIO := true
-#BOARD_USES_SS_VOIP := true
-#BOARD_USE_LIBATCHANNEL_WRAPPER := true
-#USE_LEGACY_AUDIO_POLICY := 1
-
-# Media
-#COMMON_GLOBAL_CFLAGS += -DADD_LEGACY_ACQUIRE_BUFFER_SYMBOL
-#COMMON_GLOBAL_CFLAGS += -DBOARD_CANT_REALLOCATE_OMX_BUFFERS
-
+# Bluetooth
+BOARD_CUSTOM_BT_CONFIG := device/samsung/kanas/bluetooth/libbt_vndcfg.txt
 
 # Graphics
-HWUI_COMPILE_FOR_PERF := true
-TARGET_REQUIRES_SYNCHRONOUS_SETSURFACE := true
 USE_OVERLAY_COMPOSER_GPU := true
+NUM_FRAMEBUFFER_SURFACE_BUFFERS := 3
+BOARD_GLOBAL_CFLAGS += -DUSE_3_FRAMEBUFFER
+USE_SPRD_DITHER := false
 
-# HWComposer
-USE_SPRD_HWCOMPOSER := true
-USE_SPRD_DITHER := true
+# Bootanimation
+TARGET_BOOTANIMATION_HALF_RES := true
 
-# Audio
-BOARD_USE_LIBATCHANNEL_WRAPPER := true
+# RIL
+BOARD_RIL_CLASS += ../../../device/samsung/kanas/ril
 
-# Media
-COMMON_GLOBAL_CFLAGS += -DBOARD_CANT_REALLOCATE_OMX_BUFFERS
-
-# Resolution
-TARGET_SCREEN_HEIGHT := 800
-TARGET_SCREEN_WIDTH := 480
-
-
-# Board specific features
-BOARD_USE_SAMSUNG_COLORFORMAT := true
-COMMON_GLOBAL_CFLAGS += -DUSE_LEGACY_BLOBS
-
-# Healthd
-BOARD_HAL_STATIC_LIBRARIES := libhealthd.sc8830
-
-# Charger
-BOARD_CHARGER_ENABLE_SUSPEND := true
-BOARD_NO_CHARGER_LED := true
-BOARD_CHARGING_MODE_BOOTING_LPM := /sys/class/power_supply/battery/batt_lp_charging
-CHARGING_ENABLED_PATH := /sys/class/power_supply/battery/batt_lp_charging
-BACKLIGHT_PATH := /sys/class/backlight/panel/brightness
+# Power
+# This give 4 power profiles.
+# Comment this out to get the default behavior
+TARGET_POWERHAL_VARIANT := interactive
 
 # Kernel
-BOARD_KERNEL_BASE := 0x00000000
 BOARD_KERNEL_CMDLINE := console=ttyS1,115200n8 androidboot.selinux=permissive androidboot.hardware=sc8830
 BOARD_KERNEL_PAGESIZE := 2048
 TARGET_KERNEL_CONFIG := sandroid_kanas_defconfig
 TARGET_KERNEL_SOURCE := kernel/samsung/kanas
 
-# Init
-TARGET_NR_SVC_SUPP_GIDS := 24
-TARGET_PROVIDES_INIT_RC := true
-TARGET_NEEDS_PROP_INIT_HACK := true
 
 # Assert
 TARGET_OTA_ASSERT_DEVICE := kanas,kanas3g,kanas3gxx,kanas3gub,kanas3gnfcxx,kanas3gnfc,SM-G355H,SM-G355HN,SM-G355M
 
-# SELinux
-BOARD_SEPOLICY_DIRS += device/samsung/kanas/sepolicy
-
 # Low memory config
-MALLOC_IMPL := dlmalloc
-BOARD_USES_LEGACY_MMAP := true
+MALLOC_SVELTE := true
+
+# Tell vold that we have a kernel based impl of exfat
+TARGET_KERNEL_HAVE_EXFAT := true
 
 # Enable dex-preoptimization to speed up the first boot sequence
 WITH_DEXPREOPT := true
-WITH_DEXPREOPT_PIC := true
 
-# Power
-TARGET_POWERHAL_VARIANT := sprd
+# Camera
+CAMERA_SUPPORT_SIZE := 5M
+TARGET_BOARD_CAMERA_FLASH_CTRL := true
+TARGET_BOARD_CAMERA_USE_IOMMU := true
+TARGET_BOARD_CAMERA_DMA_COPY := true
+TARGET_BOARD_BACK_CAMERA_INTERFACE := ccir
+TARGET_BOARD_FRONT_CAMERA_INTERFACE := ccir
+TARGET_BOARD_CAMERA_CAF := true
+CONFIG_CAMERA_ISP := true
+TARGET_HAS_LEGACY_CAMERA_HAL1 := true
+TARGET_BOARD_CAMERA_ROTATION_CAPTURE := false
+TARGET_BOARD_CAMERA_HAL_VERSION := HAL1.0
+BOARD_GLOBAL_CFLAGS += -DCONFIG_CAMERA_ISP
 
 # Recovery
 BOARD_HAS_DOWNLOAD_MODE := true

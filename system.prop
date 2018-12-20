@@ -21,7 +21,6 @@ drm.service.enabled=1
 # Strict Mode
 persist.sys.strictmode.disable=1
 
-# RIL
 persist.modem.w.enable=1
 ro.modem.w.dev=/dev/cpw
 ro.modem.w.tty=/dev/stty_w
@@ -33,7 +32,24 @@ ro.modem.w.nv=/dev/spipe_w1
 ro.modem.w.assert=/dev/spipe_w2
 ro.modem.w.vbc=/dev/spipe_w6
 ro.modem.w.id=0
+ro.modem.w.fixnv_size=0x40000
+ro.modem.w.runnv_size=0x60000
 ro.modem.w.count=2
+
+ro.modem.wcn.enable=1
+ro.modem.wcn.dev=/dev/cpwcn
+ro.modem.wcn.tty=/deiv/stty_wcn
+ro.modem.wcn.diag=/dev/slog_wcn
+ro.modem.wcn.assert=/dev/spipe_wcn2
+ro.modem.wcn.id=1
+ro.modem.wcn.count=1
+
+ro.product.partitionpath=/dev/block/platform/sprd-sdhci.3/by-name/
+
+persist.sys.sprd.modemreset=1
+persist.sys.sprd.wcnreset=1
+
+# RIL
 ro.com.android.dataroaming=false
 ro.msms.phone_count=2
 persist.msms.phone_count=2
@@ -42,31 +58,15 @@ persist.sys.modem.diag=,gser
 sys.usb.gser.count=2
 ro.ril.hsxpa=1
 ro.ril.gprsclass=10
-persist.radio.multisim.config=none
+#persist.radio.multisim.config=none
 ro.telephony.ril_class=SandroidTeamRIL
-ro.telephony.ril.config=setPrefNwTypeOnUnsolConnected
+ro.telephony.ril.config=setPrefNwTypeOnUnsolConnected,sim2gsmonly
 ro.ril.telephony.mqanelements=6
 
-#Multiuser
-fw.show_multiuserui=1
-fw.max_users=5
-
-# NOOB!! DO NOT CHANGE!!
-# TOLONG JANGAN DIRUBAH-RUBAH BAGIAN INI
-# JIKA KALIAN MAU MERUBAH BAGIAN INI
-# SILAHKAN BUILD ROM SENDIRI, NYEWA WEB HOSTING SENDIRI, DAN MASUKAN APP STATS SENDIRI!!!
-# TERIMAKSIH TIDAK MERUBAH HAL INI DI BAWAH.
 ########################################
 # (Muhammad Ihsan ROM User Statistics) #
 #######################################
-ro.romstats.url=http://sandroid-team.com/romstats/
-ro.romstats.url=http://sandroid-team.net/romstats/
-ro.romstats.url=http://sandroid-team.xyz/romstats/
-ro.romstats.url=http://sandroid-team.web.id/romstats/
-ro.romstats.url=http://sandroid-team.id/romstats/
-ro.romstats.url=http://sandroid-team.tk/romstats/
-ro.romstats.url=http://sandroid-team.ml/romstats/
-ro.romstats.url=http://sandroid-team.ga/romstats/
+ro.romstats.url=http://stats.sandroidteam.com/romstats/
 ro.romstats.name=LineageOS-SandroidTeam-kanas
 ro.romstats.version=6.0.1
 ro.romstats.tframe=1
@@ -76,7 +76,17 @@ ro.romstats.ga=UA-0000000-0
 # (Muhammad Ihsan ROM User Statistics) #
 #######################################
 
+#Multiuser
+fw.show_multiuserui=1
+fw.max_users=3
+
+# System prop for Atlas service
+config.disable_atlas=true
+
 # zRAM
-ro.config.zram.compressor=lz4
-ro.config.zram.disksize=192M
-ro.config.swappiness=100
+ro.config.swappiness=130
+ro.config.zram.compressor=zstd
+ro.config.zram.disksize=512M
+
+# EGL blobs crash on screen off
+ro.egl.destroy_after_detach=true

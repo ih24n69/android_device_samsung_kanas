@@ -1,6 +1,8 @@
 import /init.board.rc
 import /init.sc8830.usb.rc
-import /init.sc8830_ss.rc
+import /init.kanas3g_base.rc
+import init.wifi.rc
+
 
 on early-init
     # set core dump resource limit
@@ -8,15 +10,12 @@ on early-init
 
     # coredump file will not be generated in release version
     write /proc/sys/kernel/core_pattern /dev/null
-# radio pipe
-    mkdir /dev/rpipe 0550 radio radio
-    pipe 666 /dev/rpipe/ril.vt.0
-    pipe 666 /dev/rpipe/ril.vt.1
-    pipe 666 /dev/rpipe/ril.vt.2
 
 on init
+    # Shim libs for binary blobs
+    export LD_SHIM_LIBS /system/lib/hw/camera.sc8830.so|libmemoryheapion.so:/system/lib/hw/camera2.sc8830.so|libmemoryheapion.so:/system/lib/libril.so|libril_shim.so:/system/bin/gpsd|libgps_shim.so
+
     mkdir /productinfo 0771 system system
-    export LD_SHIM_LIBS /system/lib/hw/hwcomposer.sc8830.so|libmemoryheapion.so:/system/lib/hw/camera.sc8830.so|libmemoryheapion.so
 
 on fs
     mount_all /fstab.sc8830
@@ -69,9 +68,11 @@ on fs
     chmod 0664 /sys/class/sec/tsp/cmd
 
 on charger
+    chmod 0666 /dev/log/radio
+    chmod 0666 /dev/log/main
+    chmod 0666 /dev/log/event
     mount ext4 /dev/block/platform/sprd-sdhci.3/by-name/system /system ro,barrier=1 wait
-    exec sfsck /dev/block/platform/sprd-sdhci.3/by-name/userdata ext4
-    mount ext4 /dev/block/platform/sprd-sdhci.3/by-name/userdata /data noatime,nosuid,nodev,nomblk_io_submit wait,encryptable=footer,check
+    class_start sec-charger
     
 on post-fs
     # We restorecon /efs in case the efs partition has been reset.
@@ -86,6 +87,10 @@ on post-fs
     chown system system /productinfo
     chmod 0771 /productinfo
     insmod /system/lib/modules/mali.ko
+
+    # Slave bind mount /data/media/legacy for some applications
+    mkdir /data/media/legacy 0771 media_rw media_rw
+    mount none /data/media/0 /data/media/legacy slave bind rec
 
 on post-fs-data
     # Set indication (checked by vold) that we have finished this action
@@ -102,7 +107,7 @@ on early-boot
 
     # Support audio loopback test
     mkdir /dev/pipe 0755 system system
-    pipe 666 /dev/pipe/mmi.audio.ctrl
+    exec -- /system/bin/mknod -m 666 /dev/pipe/mmi.audio.ctrl p
     # Support audio parameter stored
     mkdir /data/local/media 0775 media system
 
@@ -155,7 +160,7 @@ on boot
     chmod 0660 /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 
     chmod 0660 /sys/devices/virtual/camera/rear/Cam_antibanding
-    chmod media system /sys/devices/virtual/camera/rear/Cam_antibanding
+    chown media system /sys/devices/virtual/camera/rear/Cam_antibanding
 
     chown system system /sys/class/graphics/fb0/dynamic_pclk
     chown system system /sys/class/graphics/fb0/dynamic_fps
@@ -192,6 +197,13 @@ on boot
     chmod 0666 /proc/pin_switch/bt_iis_sys_sel/cp2_iis0
     chmod 0666 /proc/pin_switch/bt_iis_sys_sel/ap_iis0
 
+# From init.board.rc
+    chmod 660 /sys/class/rfkill/rfkill0/state
+    chmod 660 /sys/class/rfkill/rfkill0/type
+    chown bluetooth bluetooth /sys/class/rfkill/rfkill0/state
+    chown bluetooth bluetooth /sys/class/rfkill/rfkill0/type
+    mkdir /data/system 0770 system system
+
 on property:ro.modem.t.count=1
     write /proc/sim/0 t
 
@@ -226,6 +238,12 @@ on property:persist.modem.w.enable=1
     symlink /dev/spipe_w2 /dev/vbpipe2
     symlink /dev/spipe_w3 /dev/vbpipe3
     symlink /dev/spipe_w6 /dev/vbpipe6
+    symlink /dev/block/platform/sprd-sdhci.3/by-name/FIXNV1 /dev/block/platform/sprd-sdhci.3/by-name/fixnv2
+    symlink /dev/block/platform/sprd-sdhci.3/by-name/FIXNV2 /dev/block/platform/sprd-sdhci.3/by-name/fixnv1
+    symlink /dev/block/platform/sprd-sdhci.3/by-name/RUNTIMENV1 /dev/block/platform/sprd-sdhci.3/by-name/runtimenv1
+    symlink /dev/block/platform/sprd-sdhci.3/by-name/RUNTIMENV2 /dev/block/platform/sprd-sdhci.3/by-name/runtimenv2
+    symlink /dev/block/platform/sprd-sdhci.3/by-name/MODEM /dev/block/platform/sprd-sdhci.3/by-name/wmodem
+    symlink /dev/block/platform/sprd-sdhci.3/by-name/WDSP /dev/block/platform/sprd-sdhci.3/by-name/wdsp
     start nvitemd_w
     start refnotify_w
 
@@ -237,101 +255,19 @@ on property:persist.modem.t.enable=1
     start nvitemd_td
     start refnotify
 
-service modemd /system/bin/modemd
-    class core
-    user system
-    group system radio shell
-    oneshot
-
-service phoneserver_t /system/bin/phoneserver -m t
-    class core
-    user root
-    group radio system shell
-    disabled
-    oneshot
-
-service phoneserver_w /system/bin/phoneserver -m w
-    class core
-    user root
-    group radio system shell
-    disabled
-    oneshot
-
-#nvitemd
-service nvitemd_td /system/bin/nvitemd /dev/spipe_td1 /system/etc/nvitem_td.cfg FALSE
-    class core
-    user system
-    group system radio shell
-    disabled
-    oneshot
-
-service nvitemd_w /system/bin/nvitemd /dev/spipe_w1 /system/etc/nvitem_w.cfg FALSE
-    class core
-    user system
-    group system radio shell
-    disabled
-    oneshot
-
-service refnotify /system/bin/refnotify -t 0
+# From init.board.rc
+service dhcpcd_bnep0 /system/bin/dhcpcd -ABKL
     class main
-    user system
-    group system radio shell
     disabled
+    oneshot
 
-service refnotify_w /system/bin/refnotify -t 1
+service iprenew_bnep0 /system/bin/dhcpcd -n
     class main
-    user system
-    group system radio shell
-    disabled
-
-#create symlink
-service smd_symlink /system/bin/ext_symlink.sh -u
-    user root
-    disabled
-    oneshot
-
-#data on
-service data_on /system/bin/ext_data.sh  -u
-    user root
-    disabled
-    oneshot
-
-#data off
-service data_off /system/bin/ext_data.sh  -d
-    user root
-    disabled
-    oneshot
-
-#kill td app
-service kill_td_phone /system/bin/ext_kill.sh  -t
-    user root
-    disabled
-    oneshot
-
-#kill w app
-service kill_w_phone /system/bin/ext_kill.sh  -w
-    user root
-    disabled
-    oneshot
-
-#change owner
-service chown_service /system/bin/ext_chown.sh  -c
-    class main
-    user root
-    oneshot
-
-#set mac addr
-service set_mac /system/bin/ext_chown.sh  -e
-    user root
     disabled
     oneshot
 
 # LPM
-on property:ro.bootmode=charger
-	mount ext4 /dev/block/platform/sprd-sdhci.3/by-name/system /system  wait ro
-on property:ro.bootmode=charger
-    class_start sec-charger
-
 service playlpm /system/bin/lpm
     class sec-charger
     critical
+    seclabel u:r:healthd:s0

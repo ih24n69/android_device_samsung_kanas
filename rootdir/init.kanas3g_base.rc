@@ -3,6 +3,7 @@ on early-init
     chown system system /sys/devices/platform/panel/backlight/panel/brightness
     chown system system /sys/class/input/event0/device/device/enable
     chmod 777 /sys/class/input/event0/device/device/enable
+    mount debugfs /sys/kernel/debug /sys/kernel/debug
 
 on init
     #thermistor
@@ -34,9 +35,18 @@ on boot
     chown shell shell /sys/devices/platform/bcm_hsotgctrl_phy_mdio/TxCurrent
     chown shell shell /sys/devices/platform/bcm_hsotgctrl_phy_mdio/Squelch
 
+# mdnie
+	chown system media_rw /sys/class/mdnie/mdnie/scenario
+	chmod 0664 /sys/class/mdnie/mdnie/scenario
+	chown system system /sys/class/mdnie/mdnie/negative
+	chmod 0664 /sys/class/mdnie/mdnie/negative
+
 # <Sensors>
 # Accelerometer_sensor
 # permissions for sensors (accelerometer)
+    chown system system /sys/class/input/input2/en_sig_motion
+    chmod 0664 /sys/class/input/input2/en_sig_motion
+
     chown system system /sys/class/input/input0/enable
     chown system system /sys/class/input/input0/delay
     chown system system /sys/class/input/input0/poll_delay
@@ -82,33 +92,33 @@ on boot
     chown system radio /sys/class/camera/rear/rear_flash
     chmod 0660 /sys/class/camera/rear/rear_flash
 #audio pin mux
-    chown system system proc/pin_switch/bt_iis_sys_sel/cp0_iis2
-    chown system system proc/pin_switch/bt_iis_sys_sel/cp0_iis3
-    chown system system proc/pin_switch/bt_iis_sys_sel/cp0_iis0
-    chown system system proc/pin_switch/bt_iis_sys_sel/cp0_iis1
-    chown system system proc/pin_switch/bt_iis_sys_sel/cp1_iis1
-    chown system system proc/pin_switch/bt_iis_sys_sel/cp1_iis2
-    chown system system proc/pin_switch/bt_iis_sys_sel/cp1_iis0
-    chown system system proc/pin_switch/bt_iis_sys_sel/cp1_iis3
-    chown system system proc/pin_switch/bt_iis_sys_sel/ap_iis3
-    chown system system proc/pin_switch/bt_iis_sys_sel/ap_iis2
-    chown system system proc/pin_switch/bt_iis_sys_sel/ap_iis1
-    chown system system proc/pin_switch/bt_iis_sys_sel/ap_iis0
-    chown system system proc/pin_switch/bt_iis_sys_sel/vbc_iis
-    chown system system proc/pin_switch/iis01_loop_sel
-    chown system system proc/pin_switch/iis23_loop_sel
-    chown system system proc/pin_switch/iis12_loop_sel
-    chown system system proc/pin_switch/iis02_loop_sel
-    chown system system proc/pin_switch/iis03_loop_sel
-    chown system system proc/pin_switch/iis13_loop_sel
-    chown system system proc/pin_switch/iis1_sys_sel/ap_iis1
-    chown system system proc/pin_switch/iis0_sys_sel/ap_iis0
-    chown system system proc/pin_switch/iis0_sys_sel/cp0_iis0
-    chown system system proc/pin_switch/iis0_sys_sel/cp1_iis0
-    chown system system proc/pin_switch/iis0_sys_sel/cp2_iis0
-    chown system system proc/pin_switch/iis1_sys_sel/cp2_iis1
-    chown system system proc/pin_switch/iis1_sys_sel/cp0_iis1
-    chown system system proc/pin_switch/iis1_sys_sel/cp1_iis1
+    chown system audio proc/pin_switch/bt_iis_sys_sel/cp0_iis2
+    chown system audio proc/pin_switch/bt_iis_sys_sel/cp0_iis3
+    chown system audio proc/pin_switch/bt_iis_sys_sel/cp0_iis0
+    chown system audio proc/pin_switch/bt_iis_sys_sel/cp0_iis1
+    chown system audio proc/pin_switch/bt_iis_sys_sel/cp1_iis1
+    chown system audio proc/pin_switch/bt_iis_sys_sel/cp1_iis2
+    chown system audio proc/pin_switch/bt_iis_sys_sel/cp1_iis0
+    chown system audio proc/pin_switch/bt_iis_sys_sel/cp1_iis3
+    chown system audio proc/pin_switch/bt_iis_sys_sel/ap_iis3
+    chown system audio proc/pin_switch/bt_iis_sys_sel/ap_iis2
+    chown system audio proc/pin_switch/bt_iis_sys_sel/ap_iis1
+    chown system audio proc/pin_switch/bt_iis_sys_sel/ap_iis0
+    chown system audio proc/pin_switch/bt_iis_sys_sel/vbc_iis
+    chown system audio proc/pin_switch/iis01_loop_sel
+    chown system audio proc/pin_switch/iis23_loop_sel
+    chown system audio proc/pin_switch/iis12_loop_sel
+    chown system audio proc/pin_switch/iis02_loop_sel
+    chown system audio proc/pin_switch/iis03_loop_sel
+    chown system audio proc/pin_switch/iis13_loop_sel
+    chown system audio proc/pin_switch/iis1_sys_sel/ap_iis1
+    chown system audio proc/pin_switch/iis0_sys_sel/ap_iis0
+    chown system audio proc/pin_switch/iis0_sys_sel/cp0_iis0
+    chown system audio proc/pin_switch/iis0_sys_sel/cp1_iis0
+    chown system audio proc/pin_switch/iis0_sys_sel/cp2_iis0
+    chown system audio proc/pin_switch/iis1_sys_sel/cp2_iis1
+    chown system audio proc/pin_switch/iis1_sys_sel/cp0_iis1
+    chown system audio proc/pin_switch/iis1_sys_sel/cp1_iis1
 
     chmod 0664 proc/pin_switch/bt_iis_sys_sel/cp0_iis2
     chmod 0664 proc/pin_switch/bt_iis_sys_sel/cp0_iis3
@@ -314,51 +324,46 @@ on property:dev.bootcomplete=1
     chown system system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/ondemand/set_enable
     chown system system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/ondemand/set_upthreshold
     chown system system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/ondemand/set_downdifferential
-    chown media system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/ondemand/set_freq
-    chown media system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/ondemand/set_request
+    chown mediacodec system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/ondemand/set_freq
+    chown mediacodec system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/ondemand/set_request
     chmod 0660 /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/ondemand/set_freq
 
-on charger
-    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor "powersave"
+#on charger
+#    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor "powersave"
 
-#wcdma rild service
-service ril-daemon /system/bin/rild -l /system/lib/libreference-ril_sp.so -m w -n 0
-    class core
-    socket rild stream 660 root radio
-    socket rild-debug stream 660 radio system
-    disabled
-    user root
-    group radio cache inet misc audio sdcard_rw log shell sdcard_r
-    setenv LD_SHIM_LIBS /system/lib/libril.so|libril_shim.so
-
-
-service ril-daemon2 /system/bin/rild -l /system/lib/libreference-ril_sp.so -m w -n 1
-    class core
-    socket rild1 stream 660 root radio
-    socket rild-debug1 stream 660 radio system
-    disabled
-    user root
-    group radio cache inet misc audio sdcard_rw log shell sdcard_r
-    setenv LD_SHIM_LIBS /system/lib/libril.so|libril_shim.so
-
-service ril-daemon3 /system/bin/rild -l /system/lib/libreference-ril_sp.so -m w -n 2
-    class core
-    socket rild2 stream 660 root radio
-    socket rild-debug2 stream 660 radio system
-    disabled
-    user root
-    group radio cache inet misc audio sdcard_rw log shell sdcard_r
-    setenv LD_SHIM_LIBS /system/lib/libril.so|libril_shim.so
-
-# GPS
-service gpsd /system/bin/gpsd -c /system/etc/gps.xml
+# for BT-PANU
+service dhcpcd_bt-pan /system/bin/dhcpcd -BKL
     class main
-    user gps
-    group system inet net_raw
-    ioprio be 0
-    setenv LD_SHIM_LIBS /system/bin/gpsd|libgps_shim.so
+    disabled
+    oneshot
 
-service at_distributor /system/bin/at_distributor
+service iprenew_bt-pan /system/bin/dhcpcd -n
+    class main
+    disabled
+    oneshot
+
+# From init.wifi.rc
+service dhcpcd_wlan0 /system/bin/dhcpcd -ABKL
+    class main
+    disabled
+    oneshot
+
+service dhcpcd_ibss /system/bin/dhcpcd -BKM
     class late_start
-    user root
-    group radio misc log
+    disabled
+    oneshot
+
+service dhcpcd_p2p /system/bin/dhcpcd -aABKL
+    class main
+    disabled
+    oneshot
+
+service iprenew_wlan0 /system/bin/dhcpcd -n
+    class main
+    disabled
+    oneshot
+
+service iprenew_p2p /system/bin/dhcpcd -n
+    class main
+    disabled
+    oneshot

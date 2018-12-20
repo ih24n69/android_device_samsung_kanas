@@ -29,6 +29,7 @@ import android.telephony.ModemActivityInfo;
 
 import com.android.internal.telephony.uicc.SpnOverride;
 import com.android.internal.telephony.RILConstants;
+import com.android.internal.telephony.uicc.IccUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,6 +58,16 @@ public class SandroidTeamRIL extends SamsungSPRDRIL implements CommandsInterface
             AsyncResult.forMessage(response, null, new CommandException(
                     CommandException.Error.REQUEST_NOT_SUPPORTED));
             response.sendToTarget();
+        }
+    }
+
+    @Override
+    public void getHardwareConfig (Message result) {
+        riljLog("Ignoring call to 'getHardwareConfig'");
+        if (result != null) {
+            AsyncResult.forMessage(result, null, new CommandException(
+                    CommandException.Error.REQUEST_NOT_SUPPORTED));
+            result.sendToTarget();
         }
     }
 
