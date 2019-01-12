@@ -1,0 +1,39 @@
+From 8fcf48dce1d5b2a80940f137174f0f38dfa3006a Mon Sep 17 00:00:00 2001
+From: Mark Enriquez <enriquezmark36@gmail.com>
+Date: Tue, 21 Aug 2018 09:59:24 +0800
+Subject: [PATCH] Read from current_now for current(mA) readings when
+ current_max is not available
+
+Change-Id: Ia5f07e06d2d28c1cc5735909e70519e93dccc52f
+---
+ healthd/BatteryMonitor.cpp | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/healthd/BatteryMonitor.cpp b/healthd/BatteryMonitor.cpp
+index 86a4fc629..73c9b4766 100644
+--- a/healthd/BatteryMonitor.cpp
++++ b/healthd/BatteryMonitor.cpp
+@@ -312,12 +312,18 @@ bool BatteryMonitor::update(void) {
+                                              name);
+                             }
+                             path.clear();
+-                            path.appendFormat("%s/%s/current_max", POWER_SUPPLY_SYSFS_PATH,
++                            path.appendFormat("%s/%s/current_now", POWER_SUPPLY_SYSFS_PATH,
+                                            name);
++                            if (access(path.string(), R_OK) != 0) {
++                                path.clear();
++                                path.appendFormat("%s/%s/current_max", POWER_SUPPLY_SYSFS_PATH,
++                                               name);
++                            }
+                             if (access(path.string(), R_OK) == 0) {
+                                 int maxChargingCurrent = getIntField(path);
+                                 if (props.maxChargingCurrent < maxChargingCurrent) {
+-                                       props.maxChargingCurrent = maxChargingCurrent;
++                                       // Convert mA(milliampere to uA(micro-ampere)
++                                       props.maxChargingCurrent = maxChargingCurrent * 1000;
+                                 }
+                            }
+                         }
+-- 
+2.18.0
+

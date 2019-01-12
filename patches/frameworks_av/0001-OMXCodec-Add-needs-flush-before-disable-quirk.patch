@@ -1,0 +1,28 @@
+From 07348ec9deda3b43b3fcbcb4f9c45c7969f08d66 Mon Sep 17 00:00:00 2001
+From: Mark Enriquez <enriquezmark36@gmail.com>
+Date: Tue, 21 Aug 2018 09:47:43 +0800
+Subject: [PATCH] OMXCodec: Add needs-flush-before-disable quirk
+
+Change-Id: I8d73f10c9c79be9620356203d4126fff163ae250
+Signed-off-by: Mark Enriquez <enriquezmark36@gmail.com>
+---
+ media/libstagefright/OMXCodec.cpp | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/media/libstagefright/OMXCodec.cpp b/media/libstagefright/OMXCodec.cpp
+index de00ff282..198156e4a 100644
+--- a/media/libstagefright/OMXCodec.cpp
++++ b/media/libstagefright/OMXCodec.cpp
+@@ -270,6 +270,9 @@ uint32_t OMXCodec::getComponentQuirks(
+     if (info->hasQuirk("output-buffers-are-unreadable")) {
+         quirks |= kOutputBuffersAreUnreadable;
+     }
++    if (info->hasQuirk("needs-flush-before-disable")) {
++        quirks |= kNeedsFlushBeforeDisable;
++    }
+ 
+     return quirks;
+ }
+-- 
+2.18.0
+

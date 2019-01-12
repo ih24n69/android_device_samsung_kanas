@@ -1,0 +1,14 @@
+import init.kanas3g_base.rc
+import init.wifi.rc
+import init.swap.rc
+
+# for BT-PANU
+service dhcpcd_bt-pan /system/bin/dhcpcd -BKL
+    class main
+    disabled
+    oneshot
+
+service iprenew_bt-pan /system/bin/dhcpcd -n
+    class main
+    disabled
+    oneshot
