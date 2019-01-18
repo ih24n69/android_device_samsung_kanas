@@ -40,6 +40,12 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
 	rild.rc
 
+# RIL
+PRODUCT_PACKAGES += \
+	modemd \
+	nvitemd \
+	refnotify \
+
 # Keylayouts
 KEYLAYOUT_FILES := \
 	device/samsung/kanas/keylayouts/ist30xx_ts_input.kl \
@@ -72,10 +78,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
 # Some Lineageos Apps
 PRODUCT_PACKAGES += \
        Snap
-
-# Modem
-PRODUCT_PACKAGES += \
-	modemd
 
 # MDNIE - modified for this device
 PRODUCT_PACKAGES += \

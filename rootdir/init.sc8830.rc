@@ -166,6 +166,10 @@ on boot
     chown system system /sys/class/graphics/fb0/dynamic_fps
     chown system system /sys/class/graphics/fb0/dynamic_mipi_clk
 
+# Prevents permission denied error for telephony
+# Also seems to "allow" mobile data to connect
+    chmod 0644 /proc/cmdline
+
 # <Sensors>
 # Accelerometer_sensor
     chown system radio /dev/accelerometer

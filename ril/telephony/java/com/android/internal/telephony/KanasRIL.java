@@ -26,10 +26,12 @@ import android.os.SystemProperties;
 import android.telephony.Rlog;
 import android.telephony.PhoneNumberUtils;
 import android.telephony.ModemActivityInfo;
+import android.telephony.SubscriptionManager;
+import android.telephony.TelephonyManager;
 
 import com.android.internal.telephony.uicc.SpnOverride;
-import com.android.internal.telephony.RILConstants;
 import com.android.internal.telephony.uicc.IccUtils;
+import com.android.internal.telephony.RILConstants;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,40 +42,15 @@ import java.util.Collections;
  *
  * {@hide}
  */
-public class SandroidTeamRIL extends SamsungSPRDRIL implements CommandsInterface {
+public class KanasRIL extends SamsungSPRDRIL implements CommandsInterface {
 
-    public SandroidTeamRIL(Context context, int preferredNetworkType, int cdmaSubscription) {
+    public KanasRIL(Context context, int preferredNetworkType, int cdmaSubscription) {
         this(context, preferredNetworkType, cdmaSubscription, null);
     }
 
-    public SandroidTeamRIL(Context context, int preferredNetworkType,
+    public KanasRIL(Context context, int preferredNetworkType,
             int cdmaSubscription, Integer instanceId) {
         super(context, preferredNetworkType, cdmaSubscription, instanceId);
-    }
-
-    @Override
-    public void setUiccSubscription(int appIndex, boolean activate, Message result) {
-        if (RILJ_LOGD) riljLog("setUiccSubscription" + " " + appIndex);
-
-        // Fake response (note: should be sent before mSubscriptionStatusRegistrants or
-        // SubscriptionManager might not set the readiness correctly)
-        AsyncResult.forMessage(result, 0, null);
-        result.sendToTarget();
-
-        // TODO: Actually turn off/on the radio (and don't fight with the ServiceStateTracker)
-        if (activate == true /* ACTIVATE */) {
-            // Subscription changed: enabled
-            if (mSubscriptionStatusRegistrants != null) {
-                mSubscriptionStatusRegistrants.notifyRegistrants(
-                        new AsyncResult (null, new int[] {1}, null));
-            }
-        } else if (activate == false /* DEACTIVATE */) {
-            // Subscription changed: disabled
-            if (mSubscriptionStatusRegistrants != null) {
-                mSubscriptionStatusRegistrants.notifyRegistrants(
-                        new AsyncResult (null, new int[] {0}, null));
-            }
-        }
     }
 
     @Override
@@ -83,30 +60,6 @@ public class SandroidTeamRIL extends SamsungSPRDRIL implements CommandsInterface
             AsyncResult.forMessage(response, null, new CommandException(
                     CommandException.Error.REQUEST_NOT_SUPPORTED));
             response.sendToTarget();
-        }
-    }
-
-    @Override
-    public void getHardwareConfig (Message result) {
-        riljLog("Ignoring call to 'getHardwareConfig'");
-        if (result != null) {
-            AsyncResult.forMessage(result, null, new CommandException(
-                    CommandException.Error.REQUEST_NOT_SUPPORTED));
-            result.sendToTarget();
-        }
-    }
-
-    @Override
-    protected void notifyRegistrantsRilConnectionChanged(int rilVer) {
-        super.notifyRegistrantsRilConnectionChanged(rilVer);
-        if (rilVer != -1) {
-            if (mInstanceId != null) {
-                riljLog("Enable simultaneous data/voice on Multi-SIM");
-                invokeOemRilRequestSprd((byte) 3, (byte) 1, null);
-            } else {
-                riljLog("Set data subscription to allow data in either SIM slot when using single SIM mode");
-                setDataAllowed(true, null);
-            }
         }
     }
 
@@ -191,11 +144,6 @@ public class SandroidTeamRIL extends SamsungSPRDRIL implements CommandsInterface
         }
 
         return response;
-    }
-
-
-    private void invokeOemRilRequestSprd(byte key, byte value, Message response) {
-        invokeOemRilRequestRaw(new byte[] { 'S', 'P', 'R', 'D', key, value }, response);
     }
 }
 

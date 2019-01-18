@@ -34,6 +34,7 @@ ro.modem.w.vbc=/dev/spipe_w6
 ro.modem.w.id=0
 ro.modem.w.fixnv_size=0x40000
 ro.modem.w.runnv_size=0x60000
+ro.modem.w.nvp=
 ro.modem.w.count=2
 
 ro.modem.wcn.enable=1
@@ -59,16 +60,19 @@ sys.usb.gser.count=2
 ro.ril.hsxpa=1
 ro.ril.gprsclass=10
 #persist.radio.multisim.config=none
-ro.telephony.ril_class=SandroidTeamRIL
-ro.telephony.ril.config=setPrefNwTypeOnUnsolConnected,sim2gsmonly
+ro.telephony.ril_class=KanasRIL
+ro.telephony.ril.config=setPrefNwTypeOnUnsolConnected
+ro.telephony.ril.socket_name=rild,rild1,rild2
 ro.ril.telephony.mqanelements=6
+persist.sys.sprd.modemreset=0
+persist.sys.sprd.wcnreset=1
 
 ########################################
 # (Muhammad Ihsan ROM User Statistics) #
 #######################################
 ro.romstats.url=http://stats.sandroidteam.com/romstats/
 ro.romstats.name=LineageOS-SandroidTeam-kanas
-ro.romstats.version=6.0.1
+ro.romstats.version=7.1.2
 ro.romstats.tframe=1
 ro.romstats.askfirst=0
 ro.romstats.ga=UA-0000000-0

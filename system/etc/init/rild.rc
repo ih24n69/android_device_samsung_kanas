@@ -18,3 +18,13 @@ service wril-daemon1 /system/bin/rild -l /system/lib/libreference-ril_sp.so -m w
     user root
     group radio cache inet misc audio log readproc wakelock shell
     setenv LD_PRELOAD /system/lib/libril_shim.so
+
+service wril-daemon2 /system/bin/rild -l /system/lib/libreference-ril_sp.so -m w -n 2
+    class main
+    socket rild2 stream 660 root radio
+    socket sap_uim_socket2 stream 660 bluetooth bluetooth
+    socket rild-debug2 stream 660 radio system
+    disabled
+    user root
+    group radio cache inet misc audio log readproc wakelock shell
+    setenv LD_PRELOAD /system/lib/libril_shim.so
