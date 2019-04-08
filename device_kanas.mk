@@ -21,6 +21,11 @@ $(call inherit-product, vendor/samsung/kanas/kanas-vendor.mk)
 # Add our overlay first as a matter of precedence
 DEVICE_PACKAGE_OVERLAYS += device/samsung/kanas/overlay
 
+# Thanks to Google's common kernel source
+# YACK should be capable of using sdcardfs on Android M and newer
+PRODUCT_PROPERTY_OVERRIDES += \
+	ro.sys.sdcardfs=true
+
 # Inherit from scx35-common device configuration
 $(call inherit-product, device/samsung/scx35-common/common.mk)
 
@@ -30,21 +35,7 @@ TARGET_SCREEN_WIDTH := 480
 
 # Rootdir files
 PRODUCT_PACKAGES += \
-	init.sc8830.rc \
-	init.sc8830.usb.rc \
-	init.kanas3g_base.rc \
-	ueventd.sc8830.rc \
 	fstab.sc8830
-
-# RIL
-PRODUCT_PACKAGES += \
-	rild.rc
-
-# RIL
-PRODUCT_PACKAGES += \
-	modemd \
-	nvitemd \
-	refnotify \
 
 # Keylayouts
 KEYLAYOUT_FILES := \
@@ -62,37 +53,46 @@ PRODUCT_PACKAGES += \
 	libstagefright_sprd_soft_mpeg4dec \
 	libstagefright_sprd_soft_h264dec
 
-# Reverse-engineered HAL driver
-PRODUCT_PACKAGES += \
-	sensors.sc8830
-
-# Camera can only use HALv1
-PRODUCT_PROPERTY_OVERRIDES += \
-	media.stagefright.legacyencoder=true \
-	media.stagefright.less-secure=true
-
-# Sdcardfs
-PRODUCT_PROPERTY_OVERRIDES += \
-	ro.sys.sdcardfs=true
-
 # Some Lineageos Apps
 PRODUCT_PACKAGES += \
        Snap
+
+# Sensors
+PRODUCT_PACKAGES += \
+	sensors.sc8830
+
+# Graphics
+PRODUCT_PACKAGES += \
+	hwcomposer.sc8830
+
+# Shim
+PRODUCT_PACKAGES += \
+    libsecril-shim \
+    libril_shim \
+    libgps_shim \
+    libstagefright_shim \
+    libphoneserver_shim
+
+# RIL
+PRODUCT_PACKAGES += \
+    modemd \
+    nvitemd \
+    refnotify \
+    rild \
+    libsecril-client \
+    libatchannel
 
 # MDNIE - modified for this device
 PRODUCT_PACKAGES += \
 	AdvancedDisplay-mod
 
-# ART device props
-PRODUCT_PROPERTY_OVERRIDES += \
-	dalvik.vm.dex2oat-filter=interpret-only \
-	dalvik.vm.image-dex2oat-filter=speed
-
-# Configuration overrides: these are not bundled with an Android.mk since they
-# need to supersede/override all instances.
+# Prebuilt targets overrides:
+# These files are declared as prebuilt targets in some Android.mk files
+# but need some device specific modifications.
+# Creating a new target for these files would result in an error so we do this instead.
+# This would produce some warning about targets being overridden.
 MEDIA_CONFIGS := \
-	device/samsung/kanas/configs/media/media_codecs.xml \
-	device/samsung/kanas/configs/media/media_profiles.xml
+	device/samsung/kanas/configs/media/media_profiles_V1_0.xml
 
 AUDIO_CONFIGS := \
 	device/samsung/kanas/configs/audio/audio_hw.xml \
@@ -102,9 +102,9 @@ AUDIO_CONFIGS := \
 	device/samsung/kanas/configs/audio/tiny_hw.xml
 
 INIT_FILES := \
-	device/samsung/kanas/configs/media/mediaserver.rc
+	device/samsung/kanas/rootdir/init.sc8830.rc
 
 PRODUCT_COPY_FILES += \
-	$(foreach f,$(MEDIA_CONFIGS),$(f):system/etc/$(notdir $(f))) \
-	$(foreach f,$(AUDIO_CONFIGS),$(f):system/etc/$(notdir $(f))) \
-	$(foreach f,$(INIT_FILES),$(f):system/etc/init/$(notdir $(f)))
+	$(foreach f,$(MEDIA_CONFIGS),$(f):system/vendor/etc/$(notdir $(f))) \
+	$(foreach f,$(AUDIO_CONFIGS),$(f):system/vendor/etc/$(notdir $(f))) \
+	$(foreach f,$(INIT_FILES),$(f):root/$(notdir $(f))) \

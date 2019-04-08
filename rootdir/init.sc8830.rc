@@ -1,105 +1,109 @@
 import /init.board.rc
 import /init.sc8830.usb.rc
-import /init.kanas3g_base.rc
-import init.wifi.rc
-
+import /init.wifi.rc
 
 on early-init
+    mount debugfs debugfs /sys/kernel/debug
+
     # set core dump resource limit
-    setrlimit 4 -1 -1
+    setrlimit 4 2147483647 2147483647
 
     # coredump file will not be generated in release version
     write /proc/sys/kernel/core_pattern /dev/null
 
-on init
-    # Shim libs for binary blobs
-    export LD_SHIM_LIBS /system/lib/hw/camera.sc8830.so|libmemoryheapion.so:/system/lib/hw/camera2.sc8830.so|libmemoryheapion.so:/system/lib/libril.so|libril_shim.so:/system/bin/gpsd|libgps_shim.so
+	chown system system /sys/devices/platform/panel/backlight/panel/brightness
+    chown system system /sys/class/input/event0/device/device/enable
+    chmod 777 /sys/class/input/event0/device/device/enable
+    mount debugfs /sys/kernel/debug /sys/kernel/debug
 
+on init
     mkdir /productinfo 0771 system system
+    symlink /dev/block/platform/sdio_emmc/by-name/PERSISTENT /dev/block/persistent
+
+    # Support Preload install apks
+    mkdir /preload 0771 system system
+
+    # See storage config details at https://source.android.com/devices/storage/
+
+    # Support legacy paths
+    symlink /sdcard /mnt/sdcard
+    symlink /sdcard /storage/sdcard0
+
+    #thermistor
+    chown radio system /sys/class/sec/sec-thermistor/temp_adc
+    chown radio system /sys/class/sec/sec-thermistor/temperature
+    chown radio system /sys/class/sec/sec-thermistor/dcxo_temp_adc
+    chown radio system /sys/class/sec/sec-thermistor/dcxo_temperature
+
+    chown radio system /sys/class/thermal/thermal_zone1/temp
+
+# SecEDS
+    setprop ro.SecEDS.enable false
 
 on fs
     mount_all /fstab.sc8830
-
-#Allow others to read fb devices
-    chmod 660 /dev/graphics/fb0
-    chmod 660 /dev/fb0
+    mount pstore pstore /sys/fs/pstore
+    symlink /system/res /res
+    symlink /system/bin /bin
 
 #permissions for debug
     chown system system /sys/power/restart_cpc
     chmod 0220 /sys/power/restart_cpc
 
-#permissions for cpufreq
-    chown system system /sys/power/cpufreq_min_limit
-    chown system system /sys/power/cpufreq_max_limit
-    chown system system /sys/power/cpufreq_table
-    chmod 0664 /sys/power/cpufreq_min_limit
-    chmod 0664 /sys/power/cpufreq_max_limit
-    chmod 0664 /sys/power/cpufreq_table
-
-#permissions for ddr
-    chown system system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/polling_interval
-    chown system system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/min_freq
-    chown system system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/max_freq
-    chown system system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/governor
-    chown system system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/cur_freq
-    chown system system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/available_frequencies
-    chmod 664 /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/min_freq
-    chmod 664 /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/max_freq
-    chmod 664 /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/available_frequencies
-
-# permissions for sensors (accelerometer)
-    chown system system /sys/class/input/input0/enable
-    chown system system /sys/class/input/input0/delay
-    chown system system /sys/class/input/input0/poll_delay
-    chmod 0660 /sys/class/input/input0/enable
-    chmod 0660 /sys/class/input/input0/delay
-    chmod 0660 /sys/class/input/input0/poll_delay
-
-    chown system system /sys/class/input/input1/enable
-    chown system system /sys/class/input/input1/delay
-    chown system system /sys/class/input/input1/poll_delay
-    chmod 0660 /sys/class/input/input1/enable
-    chmod 0660 /sys/class/input/input1/delay
-    chmod 0660 /sys/class/input/input1/poll_delay
-
-# permissions for TSP
-    chown system system /sys/class/sec/tsp/cmd
-
-    chmod 0664 /sys/class/sec/tsp/cmd
+#Allow others to read fb devices
+    chmod 660 /dev/graphics/fb0
+    chmod 660 /dev/fb0
 
 on charger
-    chmod 0666 /dev/log/radio
-    chmod 0666 /dev/log/main
-    chmod 0666 /dev/log/event
+	write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor "powersave"
     mount ext4 /dev/block/platform/sprd-sdhci.3/by-name/system /system ro,barrier=1 wait
-    class_start sec-charger
-    
+
+service charger /charger
+    class charger
+    group log
+    critical
+    seclabel u:r:healthd:s0
+
+service charger /system/vendor/bin/lpm
+    class charger
+    group log
+    critical
+    seclabel u:r:healthd:s0
+
+# LPM
+service playlpm /system/vendor/bin/lpm
+    class sec-charger
+    critical
+    seclabel u:r:healthd:s0
+
 on post-fs
-    # We restorecon /efs in case the efs partition has been reset.
-    restorecon_recursive /efs
-
-    # We restorecon /system in case the system partition has been reset.
-    restorecon_recursive /system
-
-    # We restorecon /productinfo in case the productinfo partition has been reset.
-    restorecon_recursive /productinfo
-
     chown system system /productinfo
     chmod 0771 /productinfo
-    insmod /system/lib/modules/mali.ko
-
-    # Slave bind mount /data/media/legacy for some applications
-    mkdir /data/media/legacy 0771 media_rw media_rw
-    mount none /data/media/0 /data/media/legacy slave bind rec
 
 on post-fs-data
+    copy /system/etc/bluetooth/bt_stack.conf /data/misc/bluedroid/bt_stack.conf
+    chown bluetooth system /data/misc/bluedroid/bt_stack.conf
+    chmod 0640 /data/misc/bluedroid/bt_stack.conf
+    mkdir /data/local/media 0770 media system
+    mkdir /data/anr 0771 system system
+    mkdir /data/tombstones 0771 system system
+
     # Set indication (checked by vold) that we have finished this action
     setprop vold.post_fs_data_done 1
 
-    # Make param block device link
-    chown system system /dev/block/platform/sprd-sdhci.3/by-name/PARAM
-    chmod 0660 /dev/block/platform/sprd-sdhci.3/by-name/PARAM
-    symlink /dev/block/platform/sprd-sdhci.3/by-name/PARAM /dev/block/param
+	on property:ro.debug_level=0x494d
+    # Debug Level MID, turn tracing on
+    # set ring buf size to 4KB * 4 = 16KB
+    write /sys/kernel/debug/tracing/buffer_size_kb 512
+
+    # enable part of sced traces, irq, workqueue
+    write /sys/kernel/debug/tracing/events/irq/irq_handler_entry/enable 1
+    write /sys/kernel/debug/tracing/events/irq/irq_handler_exit/enable 1
+    write /sys/kernel/debug/tracing/events/workqueue/enable 1
+    write /sys/kernel/debug/tracing/events/sched/sched_switch/enable 1
+    write /sys/kernel/debug/tracing/events/power/enable 1
+    write /sys/kernel/debug/tracing/events/timer/enable 1
+    write /sys/kernel/debug/tracing/events/cpufreq_interactive/cpufreq_interactive_setspeed/enable 1
 
 on early-boot
     # set RLIMIT_MEMLOCK to 64MB
@@ -109,7 +113,6 @@ on early-boot
     mkdir /dev/pipe 0755 system system
     exec -- /system/bin/mknod -m 666 /dev/pipe/mmi.audio.ctrl p
     # Support audio parameter stored
-    mkdir /data/local/media 0775 media system
 
     chmod 660 /proc/cpt/wdtirq
     chmod 660 /proc/cpt/stop
@@ -128,12 +131,14 @@ on early-boot
     chmod 660 /proc/cpw/start
     chmod 660 /proc/cpw/modem
     chmod 660 /proc/cpw/dsp
+    chmod 660 /proc/cpw/mem
 
     chown system root /proc/cpw/wdtirq
     chown system root /proc/cpw/stop
     chown system root /proc/cpw/start
     chown system root /proc/cpw/modem
     chown system root /proc/cpw/dsp
+    chown system root /proc/cpw/mem
 
     chmod 660 /proc/cpwcn/wdtirq
     chmod 660 /proc/cpwcn/stop
@@ -147,51 +152,305 @@ on early-boot
     chown system root /proc/cpwcn/modem
     chown system root /proc/cpwcn/dsp
 
+    chown system root /sys/class/rtcc/rtcc_trigger
 on boot
+    chmod 0644 /proc/cmdline
+    chown system system /sys/module/mali/parameters/gpu_freq_cur
     chown system system /sys/module/mali/parameters/gpu_cur_freq
+    chown system system /sys/module/mali/parameters/gpu_freq_max_limit
     chown system system /sys/module/mali/parameters/gpufreq_max_limit
+    chown system system /sys/module/mali/parameters/gpu_freq_min_limit
     chown system system /sys/module/mali/parameters/gpufreq_min_limit
     chown system system /sys/module/mali/parameters/gpufreq_table
     chown system system /sys/kernel/debug/mali0/memory_usage
 
-    chown system system /sys/class/backlight/sprd_backlight/brightness
-
     chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+    chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed
+    chown system system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/ondemand/set_freq
+    chown system system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/ondemand/set_enable
+    chown system system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/ondemand/set_upthreshold
+    chown system system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/ondemand/set_downdifferential
+    chown media system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/ondemand/set_request
+    chown system system /dev/iq_mem
+    chown media system /sys/devices/system/cpu/cpuhotplug/cpu_hotplug_disable
+    chown system system /sys/class/graphics/fb0/blank
+
     chmod 0660 /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+    chmod 0660 /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/ondemand/set_freq
+    chmod 0660 /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/ondemand/set_enable
+    chmod 0440 /dev/iq_mem
+    chmod 0660 /sys/class/graphics/fb0/blank
 
-    chmod 0660 /sys/devices/virtual/camera/rear/Cam_antibanding
-    chown media system /sys/devices/virtual/camera/rear/Cam_antibanding
+# mdnie
+    chown system media_rw /sys/class/mdnie/mdnie/scenario
+    chmod 0664 /sys/class/mdnie/mdnie/scenario
+    chown system system /sys/class/mdnie/mdnie/negative
+    chmod 0664 /sys/class/mdnie/mdnie/negative
 
-    chown system system /sys/class/graphics/fb0/dynamic_pclk
-    chown system system /sys/class/graphics/fb0/dynamic_fps
-    chown system system /sys/class/graphics/fb0/dynamic_mipi_clk
-
-# Prevents permission denied error for telephony
-# Also seems to "allow" mobile data to connect
-    chmod 0644 /proc/cmdline
-
-# <Sensors>
+# SENSORS
 # Accelerometer_sensor
-    chown system radio /dev/accelerometer
-    chown system radio /sys/class/sensors/accelerometer_sensor
     chown system radio /sys/class/sensors/accelerometer_sensor/raw_data
     chown system radio /sys/class/sensors/accelerometer_sensor/calibration
-    chown system radio /sys/class/sensors/accelerometer_sensor/accel_cal_open 
     chown system radio /sys/class/sensors/accelerometer_sensor/reactive_alert
     chown system radio /sys/class/sensors/accelerometer_sensor/vendor
     chown system radio /sys/class/sensors/accelerometer_sensor/name
+    chown system radio /sys/class/sensors/accelerometer_sensor/selftest
+    chown system radio /sys/class/sensors/accelerometer_sensor/lowpassfilter
+    chown system radio /efs/FactoryApp/accel_calibration_data
+    chmod 0666 /efs/FactoryApp/accel_calibration_data
 
+# Proximity_sensor
+    chown system radio /sys/class/sensors/proximity_sensor/state
+    chown system radio /sys/class/sensors/proximity_sensor/raw_data
+    chown system radio /sys/class/sensors/proximity_sensor/prox_avg
+    chown system radio /sys/class/sensors/proximity_sensor/prox_cal
+    chown system radio /sys/class/sensors/proximity_sensor/vendor
+    chown system radio /sys/class/sensors/proximity_sensor/name
+    chown system radio /sys/class/sensors/proximity_sensor/thresh_high
+    chown system radio /sys/class/sensors/proximity_sensor/thresh_low
+    chown system radio /sys/class/sensors/proximity_sensor/barcode_emul_en
 
-    chmod 777 radio /dev/accelerometer
-    chmod 777 radio /sys/class/sensors/accelerometer_sensor
-    chmod 777 radio /sys/class/sensors/accelerometer_sensor/raw_data
-    chmod 777 radio /sys/class/sensors/accelerometer_sensor/calibration
-    chmod 777 radio /sys/class/sensors/accelerometer_sensor/accel_cal_open
-    chmod 777 radio /sys/class/sensors/accelerometer_sensor/reactive_alert
-    chmod 777 radio /sys/class/sensors/accelerometer_sensor/vendor
-    chmod 777 radio /sys/class/sensors/accelerometer_sensor/name
+# Magnetic_sensor
+    chown system radio /sys/class/sensors/magnetic_sensor/name
+    chown system radio /sys/class/sensors/magnetic_sensor/vendor
+    chown system radio /sys/class/sensors/magnetic_sensor/selftest
+
+# MetaEvent
+    chown system radio /sys/class/sensors/sensor_dev/flush
 
 #audio pin mux
+    chown system system /proc/pin_switch/bt_iis_sys_sel/cp0_iis2
+    chown system system /proc/pin_switch/bt_iis_sys_sel/cp0_iis3
+    chown system system /proc/pin_switch/bt_iis_sys_sel/cp0_iis0
+    chown system system /proc/pin_switch/bt_iis_sys_sel/cp0_iis1
+    chown system system /proc/pin_switch/bt_iis_sys_sel/cp1_iis1
+    chown system system /proc/pin_switch/bt_iis_sys_sel/cp1_iis2
+    chown system system /proc/pin_switch/bt_iis_sys_sel/cp1_iis0
+    chown system system /proc/pin_switch/bt_iis_sys_sel/cp1_iis3
+    chown system system /proc/pin_switch/bt_iis_sys_sel/ap_iis3
+    chown system system /proc/pin_switch/bt_iis_sys_sel/ap_iis2
+    chown system system /proc/pin_switch/bt_iis_sys_sel/ap_iis1
+    chown system system /proc/pin_switch/bt_iis_sys_sel/ap_iis0
+    chown system system /proc/pin_switch/bt_iis_sys_sel/vbc_iis
+    chown system system /proc/pin_switch/iis01_loop_sel
+    chown system system /proc/pin_switch/iis23_loop_sel
+    chown system system /proc/pin_switch/iis12_loop_sel
+    chown system system /proc/pin_switch/iis02_loop_sel
+    chown system system /proc/pin_switch/iis03_loop_sel
+    chown system system /proc/pin_switch/iis13_loop_sel
+    chown system system /proc/pin_switch/iis1_sys_sel/ap_iis1
+    chown system system /proc/pin_switch/iis0_sys_sel/ap_iis0
+    chown system system /proc/pin_switch/iis0_sys_sel/cp0_iis0
+    chown system system /proc/pin_switch/iis0_sys_sel/cp1_iis0
+    chown system system /proc/pin_switch/iis0_sys_sel/cp2_iis0
+    chown system system /proc/pin_switch/iis1_sys_sel/cp2_iis1
+    chown system system /proc/pin_switch/iis1_sys_sel/cp0_iis1
+    chown system system /proc/pin_switch/iis1_sys_sel/cp1_iis1
+
+    chmod 0664 /proc/pin_switch/bt_iis_sys_sel/cp0_iis2
+    chmod 0664 /proc/pin_switch/bt_iis_sys_sel/cp0_iis3
+    chmod 0664 /proc/pin_switch/bt_iis_sys_sel/cp0_iis0
+    chmod 0664 /proc/pin_switch/bt_iis_sys_sel/cp0_iis1
+    chmod 0664 /proc/pin_switch/bt_iis_sys_sel/cp1_iis1
+    chmod 0664 /proc/pin_switch/bt_iis_sys_sel/cp1_iis2
+    chmod 0664 /proc/pin_switch/bt_iis_sys_sel/cp1_iis0
+    chmod 0664 /proc/pin_switch/bt_iis_sys_sel/cp1_iis3
+    chmod 0664 /proc/pin_switch/bt_iis_sys_sel/ap_iis3
+    chmod 0664 /proc/pin_switch/bt_iis_sys_sel/ap_iis2
+    chmod 0664 /proc/pin_switch/bt_iis_sys_sel/ap_iis1
+    chmod 0664 /proc/pin_switch/bt_iis_sys_sel/ap_iis0
+    chmod 0664 /proc/pin_switch/bt_iis_sys_sel/vbc_iis
+    chmod 0664 /proc/pin_switch/iis01_loop_sel
+    chmod 0664 /proc/pin_switch/iis23_loop_sel
+    chmod 0664 /proc/pin_switch/iis12_loop_sel
+    chmod 0664 /proc/pin_switch/iis02_loop_sel
+    chmod 0664 /proc/pin_switch/iis03_loop_sel
+    chmod 0664 /proc/pin_switch/iis13_loop_sel
+    chmod 0664 /proc/pin_switch/iis1_sys_sel/ap_iis1
+    chmod 0664 /proc/pin_switch/iis0_sys_sel/ap_iis0
+    chmod 0664 /proc/pin_switch/iis0_sys_sel/cp0_iis0
+    chmod 0664 /proc/pin_switch/iis0_sys_sel/cp1_iis0
+    chmod 0664 /proc/pin_switch/iis0_sys_sel/cp2_iis0
+    chmod 0664 /proc/pin_switch/iis1_sys_sel/cp2_iis1
+    chmod 0664 /proc/pin_switch/iis1_sys_sel/cp0_iis1
+    chmod 0664 /proc/pin_switch/iis1_sys_sel/cp1_iis1
+
+    chown system system /dev/ttyGS0
+    chmod 0770 /dev/snd/controlC0
+
+    chown system system /dev/block/mmcblk0
+    chmod 0660 /dev/block/mmcblk0
+
+    # change owner of sysrpc/mtest to allow atx/atxd access
+    chown system system /sys/kernel/sysrpc/mtest
+
+# Battery
+    chown system radio /sys/class/power_supply/battery/batt_reset_soc
+    chown system radio /sys/class/power_supply/battery/batt_slate_mode
+    chown system radio /sys/class/power_supply/battery/factory_mode
+    chown system radio /sys/class/power_supply/battery/siop_level
+    chown system radio /sys/class/power_supply/battery/wc_enable
+    chown system radio /sys/class/power_supply/battery/update
+    chown sdcard_rw sdcard_rw /sys/class/power_supply/battery/call
+    chown sdcard_rw sdcard_rw /sys/class/power_supply/battery/video
+    chown sdcard_rw sdcard_rw /sys/class/power_supply/battery/music
+    chown sdcard_rw sdcard_rw /sys/class/power_supply/battery/browser
+    chown sdcard_rw sdcard_rw /sys/class/power_supply/battery/hotspot
+    chown sdcard_rw sdcard_rw /sys/class/power_supply/battery/camera
+    chown system radio /sys/class/power_supply/battery/talk_wcdma
+    chown system radio /sys/class/power_supply/battery/talk_gsm
+    chown system radio /sys/class/power_supply/battery/call
+    chown system radio /sys/class/power_supply/battery/data_call
+    chown system radio /sys/class/power_supply/battery/gps
+    chown system radio /sys/class/power_supply/battery/wifi
+    chown system radio /sys/class/power_supply/battery/lte
+    chown system radio /sys/class/power_supply/battery/lcd
+
+# fake some battery state
+    setprop status.battery.state Slow
+    setprop status.battery.level 10
+    setprop status.battery.level_raw  100
+    setprop status.battery.level_scale 10
+
+# for tsp command
+    chown system system /sys/class/sec/tsp/cmd
+
+# phone
+    setprop ro.telephony.call_ring.multiple 0
+
+# GPIO DVS
+    chown radio system /sys/class/secgpio_check/secgpio_check_all/check_init_detail
+    chown radio system /sys/class/secgpio_check/secgpio_check_all/check_sleep_detail
+    chown radio system /sys/class/secgpio_check/secgpio_check_all/gpio_sleep_debug
+    chown radio system /sys/class/secgpio_check/secgpio_check_all/gpioinfo_check
+    chown radio system /sys/class/secgpio_check/secgpio_check_all/gpioinit_check
+    chown radio system /sys/class/secgpio_check/secgpio_check_all/gpiosleep_check
+
+    # create directory for DRM plug-ins
+    mkdir /data/drm 0770 drm drm
+
+    # create directory for MediaDrm plug-ins - give drm the read/write access to
+    # the following directory.
+    mkdir /data/mediadrm 0770 mediadrm mediadrm
+
+# [ SEC_MM_DRM
+    # DRM directory creation
+    mkdir /system/etc/security/.drm 0775
+    chown root root /system/etc/security/.drm
+    chmod 0775 /system/etc/security/.drm
+
+    # Added drm folder to copy drm plugins
+    mkdir /system/lib/drm 0775
+    chown root root /system/lib/drm
+    chmod 0775 /system/lib/drm
+# ]
+
+#permissions for cpufreq
+    chown radio system /sys/power/cpufreq_min_limit
+    chown radio system /sys/power/cpufreq_max_limit
+    chown radio system /sys/power/cpufreq_table
+    chmod 0660 /sys/power/cpufreq_min_limit
+    chmod 0660 /sys/power/cpufreq_max_limit
+    chmod 0660 /sys/power/cpufreq_table
+
+# permissions for cpuonline
+    chown radio system /sys/devices/system/cpu/cpu0/online
+    chown radio system /sys/devices/system/cpu/cpu1/online
+    chown radio system /sys/devices/system/cpu/cpu2/online
+    chown radio system /sys/devices/system/cpu/cpu3/online
+    chmod 0660 /sys/devices/system/cpu/cpu0/online
+    chmod 0660 /sys/devices/system/cpu/cpu1/online
+    chmod 0660 /sys/devices/system/cpu/cpu2/online
+    chmod 0660 /sys/devices/system/cpu/cpu3/online
+
+# SEC_PRODUCT_FEATURE_COMMON_USE_MULTISIM
+    setprop ro.multisim.simslotcount 2
+
+# OTG Test
+    chown system radio /sys/class/host_notify/usb_otg/booster
+    chmod 0664 /sys/class/host_notify/usb_otg/booster
+
+#for efs
+    chown radio system /efs
+    chmod 0771 /efs
+
+#For Absolute Persistence Partition 
+
+    mkdir /persdata 0755 system system
+    mkdir /persdata/absolute 0750 system system
+
+    wait /dev/block/platform/sdio_emmc/by-name/persdata
+    check_fs /dev/block/platform/sdio_emmc/by-name/persdata ext4
+    mount ext4 /dev/block/platform/sdio_emmc/by-name/persdata /persdata/absolute nosuid nodev barrier=1
+
+    chown system system /persdata
+    chmod 0755 /persdata 
+    chown system system /persdata/absolute
+    chmod 0750 /persdata/absolute
+
+# Broadcom GPS
+    mkdir /data/system 0771 system system
+    chown system system /data/system
+    mkdir /data/system/gps 0771 system system
+    chown system system /data/system/gps
+    rm /data/gps_started
+    rm /data/glonass_started
+    rm /data/beidou_started
+    rm /data/smd_started
+    rm /data/sv_cno.info
+
+# permissions for bluetooth.
+   setprop ro.bt.bdaddr_path "/efs/bluetooth/bt_addr"
+   chown bluetooth net_bt_stack ro.bt.bdaddr_path
+   symlink /system/etc/bluetooth /etc/bluetooth
+   mkdir /efs/bluetooth 0775 radio system
+   mkdir /data/misc 01771 system misc
+   chmod 0770 /data/misc/bluetoothd
+   chmod 0770 /data/misc/bluetooth
+   chown root bluetooth /dev/ttyS0
+   chmod 0770 /dev/ttyS0
+   chmod 0770 /dev/ttyS1
+   chmod 0660 /sys/class/rfkill/rfkill0/state
+   chown bluetooth bluetooth /sys/class/rfkill/rfkill0/state
+   chown bluetooth bluetooth /sys/class/rfkill/rfkill0/type
+   chmod 0660 /proc/bluetooth/sleep/btwrite
+   chown bluetooth system /proc/bluetooth/sleep/btwrite
+
+#LCD
+    chown system system /sys/class/backlight/panel/brightness
+    chmod 0664 /sys/class/backlight/panel/brightness
+
+#Enable PMTUD tcp_mtu_probing
+    write /proc/sys/net/ipv4/tcp_mtu_probing 1
+
+# needed to avoid the 7-minute-halt issue in (DOS) passive mode ftp on vodafone networ
+    write /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_be_liberal 1
+
+# Permissions for System Server and daemons.
+    chown system system /sys/devices/platform/panel/backlight/panel/brightness
+    write /proc/sys/vm/dirty_writeback_centisecs 1000
+
+on charger
+    start console
+
+on alarm
+    class_start core
+    start drm
+    start media
+    start console
+
+on property:ro.config.ksm.support=true
+    write /sys/kernel/mm/ksm/pages_to_scan 100
+    write /sys/kernel/mm/ksm/sleep_millisecs 500
+    write /sys/kernel/mm/ksm/run   1
+
+    symlink /dev/spipe_w1 /dev/vbpipe1
+    symlink /dev/spipe_w2 /dev/vbpipe2
+    symlink /dev/spipe_w3 /dev/vbpipe3
+    symlink /dev/spipe_w6 /dev/vbpipe6
+    start refnotify_w
+    start nvitemd_w
+
     chmod 0666 /proc/pin_switch/iis0_sys_sel/cp0_iis0
     chmod 0666 /proc/pin_switch/iis0_sys_sel/cp1_iis0
     chmod 0666 /proc/pin_switch/iis0_sys_sel/cp2_iis0
@@ -200,78 +459,3 @@ on boot
     chmod 0666 /proc/pin_switch/bt_iis_sys_sel/cp1_iis0
     chmod 0666 /proc/pin_switch/bt_iis_sys_sel/cp2_iis0
     chmod 0666 /proc/pin_switch/bt_iis_sys_sel/ap_iis0
-
-# From init.board.rc
-    chmod 660 /sys/class/rfkill/rfkill0/state
-    chmod 660 /sys/class/rfkill/rfkill0/type
-    chown bluetooth bluetooth /sys/class/rfkill/rfkill0/state
-    chown bluetooth bluetooth /sys/class/rfkill/rfkill0/type
-    mkdir /data/system 0770 system system
-
-on property:ro.modem.t.count=1
-    write /proc/sim/0 t
-
-on property:ro.modem.t.count=2
-    write /proc/sim/0 t
-    write /proc/sim/1 t
-
-on property:ro.modem.t.count=3
-    write /proc/sim/0 t
-    write /proc/sim/1 t
-    write /proc/sim/2 t
-
-on property:ro.modem.w.count=1
-    write /proc/sim/0 w
-
-on property:ro.modem.w.count=2
-    write /proc/sim/0 w
-    write /proc/sim/1 w
-
-on property:ro.modem.w.count=3
-    write /proc/sim/0 w
-    write /proc/sim/1 w
-    write /proc/sim/2 w
-
-on property:ro.config.ksm.support=true
-    write /sys/kernel/mm/ksm/pages_to_scan 100
-    write /sys/kernel/mm/ksm/sleep_millisecs 500
-    write /sys/kernel/mm/ksm/run 1
-
-on property:persist.modem.w.enable=1
-    symlink /dev/spipe_w1 /dev/vbpipe1
-    symlink /dev/spipe_w2 /dev/vbpipe2
-    symlink /dev/spipe_w3 /dev/vbpipe3
-    symlink /dev/spipe_w6 /dev/vbpipe6
-    symlink /dev/block/platform/sprd-sdhci.3/by-name/FIXNV1 /dev/block/platform/sprd-sdhci.3/by-name/fixnv2
-    symlink /dev/block/platform/sprd-sdhci.3/by-name/FIXNV2 /dev/block/platform/sprd-sdhci.3/by-name/fixnv1
-    symlink /dev/block/platform/sprd-sdhci.3/by-name/RUNTIMENV1 /dev/block/platform/sprd-sdhci.3/by-name/runtimenv1
-    symlink /dev/block/platform/sprd-sdhci.3/by-name/RUNTIMENV2 /dev/block/platform/sprd-sdhci.3/by-name/runtimenv2
-    symlink /dev/block/platform/sprd-sdhci.3/by-name/MODEM /dev/block/platform/sprd-sdhci.3/by-name/wmodem
-    symlink /dev/block/platform/sprd-sdhci.3/by-name/WDSP /dev/block/platform/sprd-sdhci.3/by-name/wdsp
-    start nvitemd_w
-    start refnotify_w
-
-on property:persist.modem.t.enable=1
-    symlink /dev/spipe_td1 /dev/vbpipe1
-    symlink /dev/spipe_td2 /dev/vbpipe2
-    symlink /dev/spipe_td3 /dev/vbpipe3
-    symlink /dev/spipe_td6 /dev/vbpipe6
-    start nvitemd_td
-    start refnotify
-
-# From init.board.rc
-service dhcpcd_bnep0 /system/bin/dhcpcd -ABKL
-    class main
-    disabled
-    oneshot
-
-service iprenew_bnep0 /system/bin/dhcpcd -n
-    class main
-    disabled
-    oneshot
-
-# LPM
-service playlpm /system/bin/lpm
-    class sec-charger
-    critical
-    seclabel u:r:healthd:s0

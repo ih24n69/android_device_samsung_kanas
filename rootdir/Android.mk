@@ -27,10 +27,6 @@ include $(BUILD_PREBUILT)
 endef
 
 init_files := \
-	init.sc8830.rc \
-	init.sc8830.usb.rc \
-	init.kanas3g_base.rc \
-	ueventd.sc8830.rc \
 	fstab.sc8830
 
 $(foreach p,$(init_files),$(eval $(call create,$(p))))

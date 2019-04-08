@@ -1,0 +1,41 @@
+From ccf0674f3fa4d42d001a40f54a5b6aaedc3a4f01 Mon Sep 17 00:00:00 2001
+From: Mark Enriquez <enriquezmark36@gmail.com>
+Date: Tue, 17 Jul 2018 11:17:37 +0800
+Subject: [PATCH] Read from current_now for current(mA) readings
+
+Change-Id: I13d0b602ab182622e4cb547e13e7884a96fba807
+Signed-off-by: Mark Enriquez <enriquezmark36@gmail.com>
+---
+ healthd/BatteryMonitor.cpp | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
+
+diff --git a/healthd/BatteryMonitor.cpp b/healthd/BatteryMonitor.cpp
+index b32343850..c91d9764a 100644
+--- a/healthd/BatteryMonitor.cpp
++++ b/healthd/BatteryMonitor.cpp
+@@ -303,9 +303,20 @@ bool BatteryMonitor::update(void) {
+                              mChargerNames[i].string());
+             }
+             path.clear();
+-            path.appendFormat("%s/%s/current_max", POWER_SUPPLY_SYSFS_PATH,
++            path.appendFormat("%s/%s/current_now", POWER_SUPPLY_SYSFS_PATH,
+                               mChargerNames[i].string());
+-            int ChargingCurrent =
++
++            // Convert mA(milliampere) to uA(micro-ampere)
++            int ChargingCurrent = 1000;
++
++            if (access(path.string(), R_OK) != 0) {
++                path.clear();
++                path.appendFormat("%s/%s/current_max", POWER_SUPPLY_SYSFS_PATH,
++                                  mChargerNames[i].string());
++                // Revert conversions; expect micro-ampere
++                ChargingCurrent = 1;
++            }
++            ChargingCurrent *=
+                     (access(path.string(), R_OK) == 0) ? getIntField(path) : 0;
+ 
+             path.clear();
+-- 
+2.17.1
+
