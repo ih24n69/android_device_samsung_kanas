@@ -102,7 +102,8 @@ AUDIO_CONFIGS := \
 	device/samsung/kanas/configs/audio/tiny_hw.xml
 
 INIT_FILES := \
-	device/samsung/kanas/rootdir/init.sc8830.rc
+	device/samsung/kanas/rootdir/init.sc8830.rc \
+	device/samsung/kanas/rootdir/init.kanas3g_base.rc
 
 PRODUCT_COPY_FILES += \
 	$(foreach f,$(MEDIA_CONFIGS),$(f):system/vendor/etc/$(notdir $(f))) \
