@@ -61,7 +61,6 @@ ro.debuggable=1
 # Media
 media.stagefright.legacyencoder=true
 media.stagefright.less-secure=true
-persist.media.treble_omx=false
 
 ########################################
 # (Muhammad Ihsan ROM User Statistics) #
