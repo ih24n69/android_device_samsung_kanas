@@ -69,7 +69,7 @@ persist.media.treble_omx=false
 ro.romstats.url=http://stats.sandroidteam.com/romstats/
 ro.romstats.name=LineageOS-SandroidTeam-kanas
 ro.romstats.version=8.1.0
-ro.romstats.tframe=1
+ro.romstats.tframe=7
 ro.romstats.askfirst=0
 ro.romstats.ga=UA-0000000-0
 ########################################
