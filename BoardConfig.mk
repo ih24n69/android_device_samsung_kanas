@@ -15,9 +15,6 @@
 # Some magic
 # on top line to make macro check scx35 common working
 SOC_SCX35 := true
-SF_START_GRAPHICS_ALLOCATOR_SERVICE:= true
-TARGET_NEEDS_LEGACY_CAMERA_HAL1_DYN_NATIVE_HANDLE := true
-USE_DEVICE_SPECIFIC_CAMERA := true
 
 # Inherit from SCX35 common configs
 -include device/samsung/scx35-common/BoardConfigCommon.mk
@@ -76,6 +73,9 @@ TARGET_BOOTANIMATION_HALF_RES := true
 # Bluetooth
 BOARD_CUSTOM_BT_CONFIG := device/samsung/kanas/bluetooth/libbt_vndcfg.txt
 BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/kanas/bluetooth
+
+# RIL
+TARGET_SPECIFIC_HEADER_PATH := device/samsung/kanas/include
 
 # Kernel
 BOARD_KERNEL_CMDLINE := console=ttyS1,115200n8 androidboot.selinux=permissive androidboot.hardware=sc8830
